@@ -29,17 +29,6 @@ const videoDb = [{
         "availableResolutions": [
             AvailableResolutions.P144
         ]
-    }, {
-        "id": 1,
-        "title": "Scary",
-        "author": "Movie",
-        "canBeDownloaded": true,
-        "minAgeRestriction": null,
-        "createdAt": "2023-08-14T16:16:48.040Z",
-        "publicationDate": "2023-08-14T16:16:48.040Z",
-        "availableResolutions": [
-            AvailableResolutions.P240
-        ]
     }];
 exports.app.get('/videos', (req, res) => {
     res.status(200).send(videoDb);
@@ -51,7 +40,7 @@ exports.app.get('/videos/:id', (req, res) => {
         res.sendStatus(404);
         return;
     }
-    res.status(200).send(video);
+    res.send(video);
 });
 exports.app.post('/videos', (req, res) => {
     let errors = {
@@ -92,7 +81,7 @@ exports.app.post('/videos', (req, res) => {
         id: +(new Date()),
         "canBeDownloaded": false,
         "minAgeRestriction": null,
-        "createdAt": createdAt.toDateString(),
+        "createdAt": createdAt.toISOString(),
         "publicationDate": publicationDate.toISOString(),
         title,
         author,
@@ -151,6 +140,7 @@ exports.app.put('/videos/:id', (req, res) => {
 exports.app.delete('/testing/all-data', (req, res) => {
     videoDb.length = 0;
     res.sendStatus(204);
+    // res.status(204).send(videoDb)
 });
 exports.app.delete('/videos/:id', (req, res) => {
     const id = +req.params.id;
@@ -158,8 +148,10 @@ exports.app.delete('/videos/:id', (req, res) => {
     if (indexToDelete !== -1) {
         videoDb.splice(indexToDelete, 1);
         res.sendStatus(204);
+        return;
     }
     else {
         res.sendStatus(404);
+        return;
     }
 });

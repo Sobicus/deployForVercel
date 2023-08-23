@@ -56,17 +56,6 @@ const videoDb: VideoType[] = [{
     "availableResolutions": [
         AvailableResolutions.P144
     ]
-}, {
-    "id": 1,
-    "title": "Scary",
-    "author": "Movie",
-    "canBeDownloaded": true,
-    "minAgeRestriction": null,
-    "createdAt": "2023-08-14T16:16:48.040Z",
-    "publicationDate": "2023-08-14T16:16:48.040Z",
-    "availableResolutions": [
-        AvailableResolutions.P240
-    ]
 }]
 
 app.get('/videos', (req: Request, res: Response) => {
@@ -130,7 +119,7 @@ app.post('/videos', (req: RequestWithBody<{
         id: +(new Date()),
         "canBeDownloaded": false,
         "minAgeRestriction": null,
-        "createdAt": createdAt.toDateString(),
+        "createdAt": createdAt.toISOString(),
         "publicationDate": publicationDate.toISOString(),
         title,
         author,
