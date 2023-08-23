@@ -128,7 +128,7 @@ app.post('/videos', (req: RequestWithBody<{
     res.status(201).send(newVideo)
 })
 app.put('/videos/:id', (req: RequestWithBodyAndParams<{
-    id: number
+    id: string
 }, RequestWithBodyAndParamsBType>, res: Response) => {
     const id = +req.params.id
 
