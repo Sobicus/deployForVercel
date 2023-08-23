@@ -154,7 +154,7 @@ app.put('/videos/:id', (req: RequestWithBodyAndParams<{
     if (typeof minAgeRestriction === 'undefined' || typeof minAgeRestriction !== 'number' || minAgeRestriction < 1 || minAgeRestriction > 18) {
         errors.errorsMessages.push({message: 'Invalid minAgeRestriction ', field: 'minAgeRestriction'})
     }
-    if (!publicationDate || !publicationDate.trim().length || typeof publicationDate !== 'string' || publicationDate.trim().length > 30) {
+    if (!publicationDate|| typeof publicationDate !== 'string' || !publicationDate.trim().length  || publicationDate.trim().length > 30) {
         errors.errorsMessages.push({message: 'Invalid  publicationDate', field: 'publicationDate'})
     }
     if (availableResolutions) {
