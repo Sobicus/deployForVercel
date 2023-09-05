@@ -15,7 +15,7 @@ app.use('/posts', postsRouter)
 app.get('/', (req: Request, res: Response) => {
     res.send('This first page if we connect to localhost:3000')
 })
-app.get('/testing/all-data', (req: Request, res: Response) => {
+app.delete('/testing/all-data', (req: Request, res: Response) => {
     postDb.length=0
     blogsDb.length=0
     res.sendStatus(204)
