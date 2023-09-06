@@ -31,7 +31,7 @@ export const inputVal = (req: Request, res: Response, next: NextFunction) => {
 // проверяем, есть ли ошибки
     if (!result.isEmpty()) {
         // возвращаем ответ с массивом ошибок
-        return res.status(401).json({
+        return res.status(400).json({
             errorsMessages: result.array({onlyFirstError: true})
         });
 
