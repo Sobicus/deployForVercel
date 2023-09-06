@@ -1,6 +1,6 @@
 import express, {Request, Response} from 'express'
 import {blogsRouter} from './routes/blogs-router'
-import { postsRouter } from './routes/posts-router'
+import {postsRouter} from './routes/posts-router'
 import {postDb} from "./repositories/posts-repository";
 import {blogsDb} from "./repositories/blogs-repository";
 
@@ -16,7 +16,7 @@ app.get('/', (req: Request, res: Response) => {
     res.send('This first page if we connect to localhost:3000')
 })
 app.delete('/testing/all-data', (req: Request, res: Response) => {
-    postDb.length=0
-    blogsDb.length=0
+    postDb.length = 0
+    blogsDb.length = 0
     res.sendStatus(204)
 })
