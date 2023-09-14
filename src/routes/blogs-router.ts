@@ -1,15 +1,15 @@
-import { Request, Response, Router} from "express";
+import {Request, Response, Router} from "express";
 import {BlogRepository} from "../repositories/blogs-repository";
-import { checkAuthorization } from "../midlewares/authorization-check-middleware";
+import {checkAuthorization} from "../midlewares/authorization-check-middleware";
 import {validationBlogsMidleware} from "../midlewares/input-blogs-validation-middleware";
 
 export const blogsRouter = Router()
-blogsRouter.get('/', (req: Request, res: Response) => {
-    const blogs = BlogRepository.findAllBlogs()
+blogsRouter.get('/', async (req: Request, res: Response) => {
+    const blogs = await BlogRepository.findAllBlogs()
     res.status(200).send(blogs)
 })
-blogsRouter.get('/:id', (req: RequestWithParams<{ id: string }>, res: Response) => {
-    const blog = BlogRepository.findBlogById(req.params.id)
+blogsRouter.get('/:id', async (req: RequestWithParams<{ id: string }>, res: Response) => {
+    const blog = await BlogRepository.findBlogById(req.params.id)
 
     if (!blog) {
         res.sendStatus(404)
@@ -18,32 +18,34 @@ blogsRouter.get('/:id', (req: RequestWithParams<{ id: string }>, res: Response) 
     res.status(200).send(blog)
 })
 
-blogsRouter.post('/', checkAuthorization, ...validationBlogsMidleware, (req: postRequestWithBody<blogBodyRequest>, res: Response) => {
+blogsRouter.post('/', checkAuthorization, ...validationBlogsMidleware, async (req: postRequestWithBody<blogBodyRequest>, res: Response) => {
     let {name, description, websiteUrl} = req.body
-    const createdBlog = BlogRepository.createBlog({name, description, websiteUrl})
+    const createdBlog = await BlogRepository.createBlog({name, description, websiteUrl})
 
     res.status(201).send(createdBlog)
 })
-blogsRouter.put('/:id', checkAuthorization, ...validationBlogsMidleware,(req: putRequestChangeBlog<{ id: string }, blogBodyRequest>, res: Response) => {
+blogsRouter.put('/:id', checkAuthorization, ...validationBlogsMidleware, async (req: putRequestChangeBlog<{
+    id: string
+}, blogBodyRequest>, res: Response) => {
     let {name, description, websiteUrl} = req.body
-    const blogIsUpdated = BlogRepository.updateBlog(req.params.id, {name, description, websiteUrl} )
+    const blogIsUpdated = await BlogRepository.updateBlog(req.params.id, {name, description, websiteUrl})
 
-    if(!blogIsUpdated){
+    if (!blogIsUpdated) {
         res.sendStatus(404)
         return
     }
 
     res.sendStatus(204)
 })
-blogsRouter.delete('/:id', checkAuthorization, (req: RequestWithParams<{ id: string }>, res: Response) => {
-   const blogIsDeleted = BlogRepository.deleteBlog(req.params.id);
+blogsRouter.delete('/:id', checkAuthorization, async (req: RequestWithParams<{ id: string }>, res: Response) => {
+    const blogIsDeleted = await BlogRepository.deleteBlog(req.params.id);
 
-   if(!blogIsDeleted){
-       res.sendStatus(404)
-       return
-   }
+    if (!blogIsDeleted) {
+        res.sendStatus(404)
+        return
+    }
 
-   res.sendStatus(204)
+    res.sendStatus(204)
 })
 
 type RequestWithParams<P> = Request<P, {}, {}, {}>

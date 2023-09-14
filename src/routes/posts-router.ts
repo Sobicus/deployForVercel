@@ -5,37 +5,37 @@ import {validationPostsMidleware} from "../midlewares/input-posts-validation-mid
 
 export const postsRouter = Router()
 
-postsRouter.get('/', (req: Request, res: Response) => {
-    const blogs = postRepository.findAllPosts()
+postsRouter.get('/', async (req: Request, res: Response) => {
+    const blogs = await postRepository.findAllPosts()
     res.status(200).send(blogs)
 })
-postsRouter.get('/:id', (req: RequestWithParams<{ id: string }>, res: Response) => {
-    const post = postRepository.findPostById(req.params.id)
+postsRouter.get('/:id', async (req: RequestWithParams<{ id: string }>, res: Response) => {
+    const post = await postRepository.findPostById(req.params.id)
     if (!post) {
         res.sendStatus(404)
         return;
     }
-   return res.status(200).send(post);
+    return res.status(200).send(post);
 })
-postsRouter.post('/', checkAuthorization, ...validationPostsMidleware, (req: postRequestWithBody<postBodyRequest>, res: Response) => {
+postsRouter.post('/', checkAuthorization, ...validationPostsMidleware, async (req: postRequestWithBody<postBodyRequest>, res: Response) => {
     let {title, shortDescription, content, blogId} = req.body
-    const newPost = postRepository.createPost(title, shortDescription, content, blogId)
-    if(!newPost) return res.sendStatus(404);
-   return res.status(201).send(newPost);
+    const newPost = await postRepository.createPost(title, shortDescription, content, blogId)
+    if (!newPost) return res.sendStatus(404);
+    return res.status(201).send(newPost);
 })
-postsRouter.put('/:id', checkAuthorization, ...validationPostsMidleware, (req: putRequesrChangePost<{
+postsRouter.put('/:id', checkAuthorization, ...validationPostsMidleware, async (req: putRequesrChangePost<{
     id: string
 }, postBodyRequest>, res: Response) => {
     let {title, shortDescription, content, blogId} = req.body
-    const postIsUpdated = postRepository.updatePost(req.params.id, {title, shortDescription, content, blogId})
+    const postIsUpdated = await postRepository.updatePost(req.params.id, {title, shortDescription, content, blogId})
     if (!postIsUpdated) {
         res.sendStatus(404)
         return
     }
     res.sendStatus(204)
 })
-postsRouter.delete('/:id', checkAuthorization, (req: RequestWithParams<{ id: string }>, res: Response) => {
-    const postIsDelete = postRepository.deletePost(req.params.id)
+postsRouter.delete('/:id', checkAuthorization, async (req: RequestWithParams<{ id: string }>, res: Response) => {
+    const postIsDelete = await postRepository.deletePost(req.params.id)
     if (!postIsDelete) {
         res.sendStatus(404)
         return
