@@ -2,6 +2,7 @@ import {postBodyRequest} from "../routes/posts-router";
 import {blogsRepositoryType} from "./blogs-repository";
 import {client, dataBaseName} from "./db";
 import {ObjectId} from "mongodb";
+import {IDefaultPagination, IPostPagination} from "../types/paggination-type";
 
 export type postsRepositoryType = {
     id: string
@@ -12,10 +13,20 @@ export type postsRepositoryType = {
     blogName: string
     createdAt: string
 }
+export type createPostType = {
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
+    createdAt: string
+}
 
-class postsRepository {
-    async findAllPosts(): Promise<Array<postsRepositoryType>> {
-        const posts = await client.db(dataBaseName).collection<postsRepositoryType>('posts').find({}).toArray()
+export class PostsRepository {
+    async findAllPosts(postsPagination:IPostPagination): Promise<Array<postsRepositoryType>> {
+        const posts = await client.db(dataBaseName).collection<postsRepositoryType>('posts')
+            .find({})
+            .sort({[postsPagination.sortBy]:postsPagination.sortDirection})
+            .toArray()
         return posts.map(p => ({
             id: p._id.toString(),
             title: p.title,
@@ -43,20 +54,13 @@ class postsRepository {
         }
     }
 
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<postsRepositoryType | null> {
-        let blog: blogsRepositoryType | null = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs').findOne({_id: new ObjectId(blogId)})
+    async createPost(newPost: createPostType): Promise<{ blogName: string, blogId: string } | null> {
+        let blog: blogsRepositoryType | null = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs').findOne({_id: new ObjectId(newPost.blogId)})
         if (!blog) return null;
-        const newPost = {
-            title,
-            shortDescription,
-            content,
-            blogId,
-            blogName: blog.name,
-            createdAt: new Date().toISOString()
-        };
-        let newPostByDb = await client.db(dataBaseName).collection('posts').insertOne({...newPost})
-
-        return {id: newPostByDb.insertedId.toString(), ...newPost};
+        let newPostByDb = await client.db(dataBaseName).collection('posts').insertOne({...newPost, blogName: blog.name})
+        const blogName = blog.name
+        const blogId = newPostByDb.insertedId.toString()
+        return {blogName, blogId}
     }
 
     async updatePost(postId: string, updateModel: postBodyRequest): Promise<boolean> {
@@ -69,5 +73,3 @@ class postsRepository {
         return resultDeletePost.deletedCount === 1
     }
 }
-
-export const postRepository = new postsRepository()

@@ -1,15 +1,25 @@
 import {Request, Response, Router} from "express";
-import {BlogRepository} from "../repositories/blogs-repository";
 import {checkAuthorization} from "../midlewares/authorization-check-middleware";
 import {validationBlogsMidleware} from "../midlewares/input-blogs-validation-middleware";
+import {blogsService} from "../domain/blogs-service";
+import {getBlogsPagination} from "../helpers/pagination-helpers";
+import {client, dataBaseName} from "../repositories/db";
+import {ObjectId} from "mongodb";
+import {BlogViewType} from "../repositories/blogs-repository";
+import {postsRepositoryType} from "../repositories/posts-repository";
+import {validationPostsByBlogIdMidleware} from "../midlewares/input-postsByBlogId-validation-middleware";
+import {postService} from "../domain/posts-service";
+import {IQuery, SortByEnum} from "../types/paggination-type";
 
 export const blogsRouter = Router()
-blogsRouter.get('/', async (req: Request, res: Response) => {
-    const blogs = await BlogRepository.findAllBlogs()
+blogsRouter.get('/', async (req: Request<{}, {}, {}, IQuery<SortByEnum>>, res: Response) => {
+    const pagination = getBlogsPagination(req.query)
+
+    const blogs = await blogsService.findAllBlogs(pagination)
     res.status(200).send(blogs)
 })
-blogsRouter.get('/:id', async (req: RequestWithParams<{ id: string }>, res: Response) => {
-    const blog = await BlogRepository.findBlogById(req.params.id)
+blogsRouter.get('/:id/', async (req: RequestWithParams<{ id: string }>, res: Response) => {
+    const blog = await blogsService.findBlogById(req.params.id)
 
     if (!blog) {
         res.sendStatus(404)
@@ -17,18 +27,63 @@ blogsRouter.get('/:id', async (req: RequestWithParams<{ id: string }>, res: Resp
     }
     res.status(200).send(blog)
 })
-
+//--------- Find all posts createt byID---------------------------
+blogsRouter.get('/:id/posts', async (req: RequestWithParamsAmdQuery<{ id: string }, IQuery<SortByEnum>>, res: Response) => {
+    let blog = await client.db(dataBaseName).collection<BlogViewType>('blogs').findOne({_id: new ObjectId(req.params.id)})
+    if (!blog) {
+        res.sendStatus(404)
+        return
+    }
+    const blogId = blog._id.toString()
+    const pagination = getBlogsPagination(req.query)
+    const posts = await client.db(dataBaseName)
+        .collection<postsRepositoryType>('posts')
+        .find({blogId: blogId})
+        .sort({[pagination.sortBy]: pagination.sortDirection})
+        .skip(pagination.skip).limit(pagination.pageSize)
+        .toArray();
+    const allPosts = posts.map(p => ({
+        id: p._id.toString(),
+        title: p.title,
+        shortDescription: p.shortDescription,
+        content: p.content,
+        blogId: p.blogId,
+        blogName: p.blogName,
+        createdAt: p.createdAt
+    }))
+    const totalCount = await client.db(dataBaseName).collection<postsRepositoryType>('posts').countDocuments({blogId: blogId})
+    const pagesCount = Math.floor(totalCount / pagination.pageSize)
+    res.status(200).send({
+        "pagesCount": pagesCount === 0 ? 1 : pagesCount,
+        "page": pagination.pageNumber,
+        "pageSize": pagination.pageSize,
+        "totalCount": totalCount,
+        "items": allPosts
+    })
+})
+//----------------------------------------------------------------
+//----------------Create newPost by ID----------------------------
+blogsRouter.post('/:id/posts', checkAuthorization, ...validationPostsByBlogIdMidleware, async (req: RequestChangeBlog<{
+    id: string
+}, postByBlogIdBodyRequest>, res: Response) => {
+    const blogId = req.params.id
+    const {title, shortDescription, content} = req.body
+    const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
+    if (!createdPostByBlogId) return res.sendStatus(404)
+    return res.status(201).send(createdPostByBlogId)
+})
+//----------------------------------------------------------------
 blogsRouter.post('/', checkAuthorization, ...validationBlogsMidleware, async (req: postRequestWithBody<blogBodyRequest>, res: Response) => {
-    let {name, description, websiteUrl} = req.body
-    const createdBlog = await BlogRepository.createBlog({name, description, websiteUrl})
+    const {name, description, websiteUrl} = req.body
+    const createdBlog = await blogsService.createBlog({name, description, websiteUrl})
 
     res.status(201).send(createdBlog)
 })
-blogsRouter.put('/:id', checkAuthorization, ...validationBlogsMidleware, async (req: putRequestChangeBlog<{
+blogsRouter.put('/:id', checkAuthorization, ...validationBlogsMidleware, async (req: RequestChangeBlog<{
     id: string
 }, blogBodyRequest>, res: Response) => {
     let {name, description, websiteUrl} = req.body
-    const blogIsUpdated = await BlogRepository.updateBlog(req.params.id, {name, description, websiteUrl})
+    const blogIsUpdated = await blogsService.updateBlog(req.params.id, {name, description, websiteUrl})
 
     if (!blogIsUpdated) {
         res.sendStatus(404)
@@ -38,7 +93,7 @@ blogsRouter.put('/:id', checkAuthorization, ...validationBlogsMidleware, async (
     res.sendStatus(204)
 })
 blogsRouter.delete('/:id', checkAuthorization, async (req: RequestWithParams<{ id: string }>, res: Response) => {
-    const blogIsDeleted = await BlogRepository.deleteBlog(req.params.id);
+    const blogIsDeleted = await blogsService.deleteBlog(req.params.id);
 
     if (!blogIsDeleted) {
         res.sendStatus(404)
@@ -49,10 +104,16 @@ blogsRouter.delete('/:id', checkAuthorization, async (req: RequestWithParams<{ i
 })
 
 type RequestWithParams<P> = Request<P, {}, {}, {}>
+type RequestWithParamsAmdQuery<P,Q> = Request<P, {}, {}, Q>
 type postRequestWithBody<B> = Request<{}, {}, B, {}>
 export  type blogBodyRequest = {
     name: string
     description: string
     websiteUrl: string
 }
-type putRequestChangeBlog<P, B> = Request<P, {}, B, {}>
+type RequestChangeBlog<P, B> = Request<P, {}, B, {}>
+type postByBlogIdBodyRequest = {
+    title: string
+    shortDescription: string
+    content: string
+}

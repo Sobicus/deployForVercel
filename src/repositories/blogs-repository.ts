@@ -1,9 +1,9 @@
 import {blogBodyRequest} from "../routes/blogs-router";
 import {client, dataBaseName} from "./db";
-import {ObjectId} from "mongodb";
+import {Filter, ObjectId} from "mongodb";
+import {IBlockPagination} from "../types/paggination-type";
 
 export type blogsRepositoryType = {
-    //id: string
     name: string
     description: string
     websiteUrl: string
@@ -19,12 +19,25 @@ export type BlogViewType = {
     createdAt: string
     isMembership: boolean
 }
+export type Paginated<T> = {
+    "pagesCount": number
+    "page": number
+    "pageSize": number
+    "totalCount": number
+    "items": T[]
+}
 
-class blogsRepository {
-
-    async findAllBlogs(): Promise<blogsRepositoryType[]> {
-        const blogs = await client.db(dataBaseName).collection<BlogViewType>('blogs').find({}).toArray();
-        return blogs.map(b => ({
+export class BlogsRepository {
+    async findAllBlogs(pagination: IBlockPagination): Promise<Paginated<BlogViewType>> {
+        const filter: Filter<BlogViewType> = {name: {$regex: pagination.searchNameTerm, $options: 'i'}}
+        const blogs = await client.db(dataBaseName)
+            .collection<BlogViewType>('blogs')
+            .find(filter)
+            .sort({[pagination.sortBy]: pagination.sortDirection})
+            .skip(pagination.skip)
+            .limit(pagination.pageSize)
+            .toArray();
+        const allBlogs = blogs.map(b => ({
             id: b._id.toString(),
             name: b.name,
             websiteUrl: b.websiteUrl,
@@ -32,10 +45,24 @@ class blogsRepository {
             createdAt: b.createdAt,
             isMembership: b.isMembership
         }))
+        const totalCount = await client.db(dataBaseName)
+            .collection<BlogViewType>('blogs')
+            .countDocuments(filter)
+        const pagesCount = Math.ceil(totalCount / pagination.pageSize)
+
+        return {
+            pagesCount: pagesCount === 0 ? 1 : pagesCount,
+            page: pagination.pageNumber,
+            pageSize: pagination.pageSize,
+            totalCount: totalCount,
+            items: allBlogs
+        }
     }
 
     async findBlogById(blogId: string): Promise<BlogViewType | null> {
-        let blog = await client.db(dataBaseName).collection<BlogViewType>('blogs').findOne({_id: new ObjectId(blogId)})
+        let blog = await client.db(dataBaseName)
+            .collection<BlogViewType>('blogs')
+            .findOne({_id: new ObjectId(blogId)})
         if (!blog) {
             return null
         }
@@ -54,13 +81,11 @@ class blogsRepository {
         return resultUpdateModel.matchedCount === 1
     }
 
-    async createBlog(createModel: blogBodyRequest): Promise<BlogViewType> {
-        const createdAt = new Date().toISOString()
-        const isMembership = false
-        const resultNewBlog = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs')
-            .insertOne({...createModel, createdAt, isMembership})
+    async createBlog(createModel: blogsRepositoryType): Promise<string>/*Promise<InsertOneResult>*/ /*Promise<BlogViewType>*/ {
 
-        return {id: resultNewBlog.insertedId.toString(), ...createModel, createdAt, isMembership}
+        const resultNewBlog = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs')
+            .insertOne(createModel)
+        return resultNewBlog.insertedId.toString()
     }
 
     async deleteBlog(blogId: string): Promise<boolean> {
@@ -68,5 +93,3 @@ class blogsRepository {
         return resultDeleteBlog.deletedCount === 1
     }
 }
-
-export const BlogRepository = new blogsRepository();
