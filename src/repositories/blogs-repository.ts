@@ -34,8 +34,8 @@ export class BlogsRepository {
             .collection<BlogViewType>('blogs')
             .find(filter)
             .sort({[pagination.sortBy]: pagination.sortDirection})
-            .skip(pagination.skip)
             .limit(pagination.pageSize)
+            .skip(pagination.skip)
             .toArray();
         const allBlogs = blogs.map(b => ({
             id: b._id.toString(),
