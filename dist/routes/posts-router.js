@@ -18,8 +18,8 @@ const pagination_helpers_1 = require("../helpers/pagination-helpers");
 exports.postsRouter = (0, express_1.Router)();
 exports.postsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const postsPagination = (0, pagination_helpers_1.getPostsPagination)(req.query);
-    const blogs = yield posts_service_1.postService.findAllPosts(postsPagination);
-    res.status(200).send(blogs);
+    const posts = yield posts_service_1.postService.findAllPosts(postsPagination);
+    res.status(200).send(posts);
 }));
 exports.postsRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const post = yield posts_service_1.postService.findPostById(req.params.id);

@@ -2,7 +2,7 @@ import {postBodyRequest} from "../routes/posts-router";
 import {blogsRepositoryType} from "./blogs-repository";
 import {client, dataBaseName} from "./db";
 import {ObjectId} from "mongodb";
-import {IDefaultPagination, IPostPagination} from "../types/paggination-type";
+import {IPostPagination} from "../types/paggination-type";
 
 export type postsRepositoryType = {
     id: string
@@ -20,12 +20,13 @@ export type createPostType = {
     blogId: string
     createdAt: string
 }
-
 export class PostsRepository {
     async findAllPosts(postsPagination:IPostPagination): Promise<Array<postsRepositoryType>> {
         const posts = await client.db(dataBaseName).collection<postsRepositoryType>('posts')
             .find({})
             .sort({[postsPagination.sortBy]:postsPagination.sortDirection})
+            .limit(postsPagination.pageSize)
+            .skip(postsPagination.skip)
             .toArray()
         return posts.map(p => ({
             id: p._id.toString(),

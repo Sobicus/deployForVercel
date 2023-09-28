@@ -18,6 +18,8 @@ class PostsRepository {
             const posts = yield db_1.client.db(db_1.dataBaseName).collection('posts')
                 .find({})
                 .sort({ [postsPagination.sortBy]: postsPagination.sortDirection })
+                .limit(postsPagination.pageSize)
+                .skip(postsPagination.skip)
                 .toArray();
             return posts.map(p => ({
                 id: p._id.toString(),
