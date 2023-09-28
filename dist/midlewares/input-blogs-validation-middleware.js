@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validationBlogsMidleware = void 0;
 const express_validator_1 = require("express-validator");
 const errorValidator_1 = require("./errorValidator");
-// import {errorValidator} from "./errorValidator";
 exports.validationBlogsMidleware = [
     (0, express_validator_1.body)('name')
         .isString().withMessage('Name not a string')

@@ -9,13 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postRepository = void 0;
+exports.PostsRepository = void 0;
 const db_1 = require("./db");
 const mongodb_1 = require("mongodb");
-class postsRepository {
-    findAllPosts() {
+class PostsRepository {
+    findAllPosts(postsPagination) {
         return __awaiter(this, void 0, void 0, function* () {
-            const posts = yield db_1.client.db(db_1.dataBaseName).collection('posts').find({}).toArray();
+            const posts = yield db_1.client.db(db_1.dataBaseName).collection('posts')
+                .find({})
+                .sort({ [postsPagination.sortBy]: postsPagination.sortDirection })
+                .toArray();
             return posts.map(p => ({
                 id: p._id.toString(),
                 title: p.title,
@@ -44,26 +47,20 @@ class postsRepository {
             };
         });
     }
-    createPost(title, shortDescription, content, blogId) {
+    createPost(newPost) {
         return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield db_1.client.db(db_1.dataBaseName).collection('blogs').findOne({ _id: new mongodb_1.ObjectId(blogId) });
+            let blog = yield db_1.client.db(db_1.dataBaseName).collection('blogs').findOne({ _id: new mongodb_1.ObjectId(newPost.blogId) });
             if (!blog)
                 return null;
-            const newPost = {
-                title,
-                shortDescription,
-                content,
-                blogId,
-                blogName: blog.name,
-                createdAt: new Date().toISOString()
-            };
-            let newPostByDb = yield db_1.client.db(db_1.dataBaseName).collection('posts').insertOne(Object.assign({}, newPost));
-            return Object.assign({ id: newPostByDb.insertedId.toString() }, newPost);
+            let newPostByDb = yield db_1.client.db(db_1.dataBaseName).collection('posts').insertOne(Object.assign(Object.assign({}, newPost), { blogName: blog.name }));
+            const blogName = blog.name;
+            const blogId = newPostByDb.insertedId.toString();
+            return { blogName, blogId };
         });
     }
     updatePost(postId, updateModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName).collection('posts').updateOne({ id: postId }, { $set: updateModel });
+            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName).collection('posts').updateOne({ _id: new mongodb_1.ObjectId(postId) }, { $set: updateModel });
             return resultUpdateModel.matchedCount === 1;
         });
     }
@@ -74,4 +71,4 @@ class postsRepository {
         });
     }
 }
-exports.postRepository = new postsRepository();
+exports.PostsRepository = PostsRepository;

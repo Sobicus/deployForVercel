@@ -9,10 +9,10 @@ import {BlogViewType} from "../repositories/blogs-repository";
 import {postsRepositoryType} from "../repositories/posts-repository";
 import {validationPostsByBlogIdMidleware} from "../midlewares/input-postsByBlogId-validation-middleware";
 import {postService} from "../domain/posts-service";
-import {IQuery, SortByEnum} from "../types/paggination-type";
+import {IQuery, SortBlogsByEnum} from "../types/paggination-type";
 
 export const blogsRouter = Router()
-blogsRouter.get('/', async (req: Request<{}, {}, {}, IQuery<SortByEnum>>, res: Response) => {
+blogsRouter.get('/', async (req: Request<{}, {}, {}, IQuery<SortBlogsByEnum>>, res: Response) => {
     const pagination = getBlogsPagination(req.query)
 
     const blogs = await blogsService.findAllBlogs(pagination)
@@ -28,7 +28,7 @@ blogsRouter.get('/:id/', async (req: RequestWithParams<{ id: string }>, res: Res
     res.status(200).send(blog)
 })
 //--------- Find all posts createt byID---------------------------
-blogsRouter.get('/:id/posts', async (req: RequestWithParamsAmdQuery<{ id: string }, IQuery<SortByEnum>>, res: Response) => {
+blogsRouter.get('/:id/posts', async (req: RequestWithParamsAmdQuery<{ id: string }, IQuery<SortBlogsByEnum>>, res: Response) => {
     let blog = await client.db(dataBaseName).collection<BlogViewType>('blogs').findOne({_id: new ObjectId(req.params.id)})
     if (!blog) {
         res.sendStatus(404)
@@ -52,9 +52,9 @@ blogsRouter.get('/:id/posts', async (req: RequestWithParamsAmdQuery<{ id: string
         createdAt: p.createdAt
     }))
     const totalCount = await client.db(dataBaseName).collection<postsRepositoryType>('posts').countDocuments({blogId: blogId})
-    const pagesCount = Math.floor(totalCount / pagination.pageSize)
+    const pagesCount = Math.ceil(totalCount / pagination.pageSize)
     res.status(200).send({
-        "pagesCount": pagesCount === 0 ? 1 : pagesCount,
+        "pagesCount": pagesCount,
         "page": pagination.pageNumber,
         "pageSize": pagination.pageSize,
         "totalCount": totalCount,
