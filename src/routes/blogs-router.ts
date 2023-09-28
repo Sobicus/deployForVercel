@@ -6,7 +6,7 @@ import {getBlogsPagination} from "../helpers/pagination-helpers";
 import {client, dataBaseName} from "../repositories/db";
 import {ObjectId} from "mongodb";
 import {BlogViewType} from "../repositories/blogs-repository";
-import {postsRepositoryType} from "../repositories/posts-repository";
+import {postsViewType} from "../repositories/posts-repository";
 import {validationPostsByBlogIdMidleware} from "../midlewares/input-postsByBlogId-validation-middleware";
 import {postService} from "../domain/posts-service";
 import {IQuery, SortBlogsByEnum} from "../types/paggination-type";
@@ -37,7 +37,7 @@ blogsRouter.get('/:id/posts', async (req: RequestWithParamsAmdQuery<{ id: string
     const blogId = blog._id.toString()
     const pagination = getBlogsPagination(req.query)
     const posts = await client.db(dataBaseName)
-        .collection<postsRepositoryType>('posts')
+        .collection<postsViewType>('posts')
         .find({blogId: blogId})
         .sort({[pagination.sortBy]: pagination.sortDirection})
         .skip(pagination.skip).limit(pagination.pageSize)
@@ -51,7 +51,7 @@ blogsRouter.get('/:id/posts', async (req: RequestWithParamsAmdQuery<{ id: string
         blogName: p.blogName,
         createdAt: p.createdAt
     }))
-    const totalCount = await client.db(dataBaseName).collection<postsRepositoryType>('posts').countDocuments({blogId: blogId})
+    const totalCount = await client.db(dataBaseName).collection<postsViewType>('posts').countDocuments({blogId: blogId})
     const pagesCount = Math.ceil(totalCount / pagination.pageSize)
     res.status(200).send({
         "pagesCount": pagesCount,

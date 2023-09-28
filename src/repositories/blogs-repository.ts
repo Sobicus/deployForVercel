@@ -51,7 +51,7 @@ export class BlogsRepository {
         const pagesCount = Math.ceil(totalCount / pagination.pageSize)
 
         return {
-            pagesCount: pagesCount === 0 ? 1 : pagesCount,
+            pagesCount: pagesCount /*=== 0 ? 1 : pagesCount*/,
             page: pagination.pageNumber,
             pageSize: pagination.pageSize,
             totalCount: totalCount,

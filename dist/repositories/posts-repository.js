@@ -21,7 +21,29 @@ class PostsRepository {
                 .limit(postsPagination.pageSize)
                 .skip(postsPagination.skip)
                 .toArray();
-            return posts.map(p => ({
+            const totalCount = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .countDocuments();
+            const pagesCount = Math.ceil(totalCount / postsPagination.pageSize);
+            // return posts.map(p => (
+            //     {
+            //         pagesCount: pagesCount,
+            //         page: postsPagination.pageNumber,
+            //         pageSize: postsPagination.pageSize,
+            //         totalCount: totalCount,
+            //         items: [
+            //             {
+            //                 id: p._id.toString(),
+            //                 title: p.title,
+            //                 shortDescription: p.shortDescription,
+            //                 content: p.content,
+            //                 blogId: p.blogId,
+            //                 blogName: p.blogName,
+            //                 createdAt: p.createdAt
+            //             }
+            //         ]
+            //     }
+            const allPosts = posts.map(p => ({
                 id: p._id.toString(),
                 title: p.title,
                 shortDescription: p.shortDescription,
@@ -30,6 +52,13 @@ class PostsRepository {
                 blogName: p.blogName,
                 createdAt: p.createdAt
             }));
+            return {
+                pagesCount: pagesCount,
+                page: postsPagination.pageNumber,
+                pageSize: postsPagination.pageSize,
+                totalCount: totalCount,
+                items: allPosts
+            };
         });
     }
     findPostById(postId) {
