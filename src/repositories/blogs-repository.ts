@@ -76,16 +76,20 @@ export class BlogsRepository {
         }
     }
 
-    async updateBlog(blogId: string, updateModel: blogBodyRequest): Promise<boolean> {
-        const resultUpdateModel = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs').updateOne({_id: new ObjectId(blogId)}, {$set: updateModel})
-        return resultUpdateModel.matchedCount === 1
-    }
-
     async createBlog(createModel: blogsRepositoryType): Promise<string>/*Promise<InsertOneResult>*/ /*Promise<BlogViewType>*/ {
 
         const resultNewBlog = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs')
             .insertOne(createModel)
         return resultNewBlog.insertedId.toString()
+    }
+
+    async createPostByBlogId() {
+
+    }
+
+    async updateBlog(blogId: string, updateModel: blogBodyRequest): Promise<boolean> {
+        const resultUpdateModel = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs').updateOne({_id: new ObjectId(blogId)}, {$set: updateModel})
+        return resultUpdateModel.matchedCount === 1
     }
 
     async deleteBlog(blogId: string): Promise<boolean> {

@@ -25,24 +25,6 @@ class PostsRepository {
                 .collection('posts')
                 .countDocuments();
             const pagesCount = Math.ceil(totalCount / postsPagination.pageSize);
-            // return posts.map(p => (
-            //     {
-            //         pagesCount: pagesCount,
-            //         page: postsPagination.pageNumber,
-            //         pageSize: postsPagination.pageSize,
-            //         totalCount: totalCount,
-            //         items: [
-            //             {
-            //                 id: p._id.toString(),
-            //                 title: p.title,
-            //                 shortDescription: p.shortDescription,
-            //                 content: p.content,
-            //                 blogId: p.blogId,
-            //                 blogName: p.blogName,
-            //                 createdAt: p.createdAt
-            //             }
-            //         ]
-            //     }
             const allPosts = posts.map(p => ({
                 id: p._id.toString(),
                 title: p.title,
