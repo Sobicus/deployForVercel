@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsRepository = void 0;
 const db_1 = require("./db");
 const mongodb_1 = require("mongodb");
+const posts_service_1 = require("../domain/posts-service");
+const pagination_helpers_1 = require("../helpers/pagination-helpers");
 class BlogsRepository {
     findAllBlogs(pagination) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -62,10 +64,42 @@ class BlogsRepository {
             };
         });
     }
-    updateBlog(blogId, updateModel) {
+    findPostByBlogId(blogId, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName).collection('blogs').updateOne({ _id: new mongodb_1.ObjectId(blogId) }, { $set: updateModel });
-            return resultUpdateModel.matchedCount === 1;
+            let blog = yield db_1.client.db(db_1.dataBaseName)
+                .collection('blogs')
+                .findOne({ _id: new mongodb_1.ObjectId(blogId) });
+            if (!blog) {
+                return null;
+            }
+            /*const blogId = blog._id.toString()*/
+            const pagination = (0, pagination_helpers_1.getBlogsPagination)(query);
+            const posts = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .find({ blogId: blogId })
+                .sort({ [pagination.sortBy]: pagination.sortDirection })
+                .skip(pagination.skip).limit(pagination.pageSize)
+                .toArray();
+            const allPosts = posts.map(p => ({
+                id: p._id.toString(),
+                title: p.title,
+                shortDescription: p.shortDescription,
+                content: p.content,
+                blogId: p.blogId,
+                blogName: p.blogName,
+                createdAt: p.createdAt
+            }));
+            const totalCount = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .countDocuments({ blogId: blogId });
+            const pagesCount = Math.ceil(totalCount / pagination.pageSize);
+            return {
+                "pagesCount": pagesCount,
+                "page": pagination.pageNumber,
+                "pageSize": pagination.pageSize,
+                "totalCount": totalCount,
+                "items": allPosts
+            };
         });
     }
     createBlog(createModel) {
@@ -73,6 +107,20 @@ class BlogsRepository {
             const resultNewBlog = yield db_1.client.db(db_1.dataBaseName).collection('blogs')
                 .insertOne(createModel);
             return resultNewBlog.insertedId.toString();
+        });
+    }
+    createPostByBlogId(title, shortDescription, content, blogId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const createdPostByBlogId = yield posts_service_1.postService.createPost(title, shortDescription, content, blogId);
+            if (!createdPostByBlogId)
+                return null;
+            return createdPostByBlogId;
+        });
+    }
+    updateBlog(blogId, updateModel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName).collection('blogs').updateOne({ _id: new mongodb_1.ObjectId(blogId) }, { $set: updateModel });
+            return resultUpdateModel.matchedCount === 1;
         });
     }
     deleteBlog(blogId) {

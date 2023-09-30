@@ -15,10 +15,7 @@ const authorization_check_middleware_1 = require("../midlewares/authorization-ch
 const input_blogs_validation_middleware_1 = require("../midlewares/input-blogs-validation-middleware");
 const blogs_service_1 = require("../domain/blogs-service");
 const pagination_helpers_1 = require("../helpers/pagination-helpers");
-const db_1 = require("../repositories/db");
-const mongodb_1 = require("mongodb");
 const input_postsByBlogId_validation_middleware_1 = require("../midlewares/input-postsByBlogId-validation-middleware");
-const posts_service_1 = require("../domain/posts-service");
 exports.blogsRouter = (0, express_1.Router)();
 exports.blogsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helpers_1.getBlogsPagination)(req.query);
@@ -35,49 +32,59 @@ exports.blogsRouter.get('/:id/', (req, res) => __awaiter(void 0, void 0, void 0,
 }));
 //--------- Find all posts createt byID---------------------------
 exports.blogsRouter.get('/:id/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let blog = yield db_1.client.db(db_1.dataBaseName).collection('blogs').findOne({ _id: new mongodb_1.ObjectId(req.params.id) });
-    if (!blog) {
+    const blogId = req.params.id;
+    const queryParam = req.query;
+    const posts = yield blogs_service_1.blogsService.findPostByBlogId(blogId, queryParam);
+    if (!posts) {
         res.sendStatus(404);
         return;
     }
-    const blogId = blog._id.toString();
-    const pagination = (0, pagination_helpers_1.getBlogsPagination)(req.query);
-    const posts = yield db_1.client.db(db_1.dataBaseName)
-        .collection('posts')
-        .find({ blogId: blogId })
-        .sort({ [pagination.sortBy]: pagination.sortDirection })
-        .skip(pagination.skip).limit(pagination.pageSize)
-        .toArray();
-    const allPosts = posts.map(p => ({
-        id: p._id.toString(),
-        title: p.title,
-        shortDescription: p.shortDescription,
-        content: p.content,
-        blogId: p.blogId,
-        blogName: p.blogName,
-        createdAt: p.createdAt
-    }));
-    const totalCount = yield db_1.client.db(db_1.dataBaseName).collection('posts').countDocuments({ blogId: blogId });
-    const pagesCount = Math.ceil(totalCount / pagination.pageSize);
-    res.status(200).send({
-        "pagesCount": pagesCount,
-        "page": pagination.pageNumber,
-        "pageSize": pagination.pageSize,
-        "totalCount": totalCount,
-        "items": allPosts
-    });
+    res.status(200).send(posts);
+    /* let blog = await client.db(dataBaseName)
+         .collection<BlogViewType>('blogs')
+         .findOne({_id: new ObjectId(req.params.id)})
+     if (!blog) {
+         res.sendStatus(404)
+         return
+     }
+     const blogId = blog._id.toString()
+     const pagination = getBlogsPagination(req.query)
+     const posts = await client.db(dataBaseName)
+         .collection<postsViewType>('posts')
+         .find({blogId: blogId})
+         .sort({[pagination.sortBy]: pagination.sortDirection})
+         .skip(pagination.skip).limit(pagination.pageSize)
+         .toArray();
+     const allPosts = posts.map(p => ({
+         id: p._id.toString(),
+         title: p.title,
+         shortDescription: p.shortDescription,
+         content: p.content,
+         blogId: p.blogId,
+         blogName: p.blogName,
+         createdAt: p.createdAt
+     }))
+     const totalCount = await client.db(dataBaseName)
+         .collection<postsViewType>('posts')
+         .countDocuments({blogId: blogId})
+     const pagesCount = Math.ceil(totalCount / pagination.pageSize)
+     res.status(200).send({
+         "pagesCount": pagesCount,
+         "page": pagination.pageNumber,
+         "pageSize": pagination.pageSize,
+         "totalCount": totalCount,
+         "items": allPosts
+     })*/
 }));
-//----------------------------------------------------------------
-//----------------Create newPost by ID----------------------------
 exports.blogsRouter.post('/:id/posts', authorization_check_middleware_1.checkAuthorization, ...input_postsByBlogId_validation_middleware_1.validationPostsByBlogIdMidleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogId = req.params.id;
     const { title, shortDescription, content } = req.body;
-    const createdPostByBlogId = yield posts_service_1.postService.createPost(title, shortDescription, content, blogId);
-    if (!createdPostByBlogId)
+    const post = yield blogs_service_1.blogsService.createPostByBlogId(title, shortDescription, content, blogId);
+    //const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
+    if (!post)
         return res.sendStatus(404);
-    return res.status(201).send(createdPostByBlogId);
+    return res.status(201).send(post);
 }));
-//----------------------------------------------------------------
 exports.blogsRouter.post('/', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMidleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, description, websiteUrl } = req.body;
     const createdBlog = yield blogs_service_1.blogsService.createBlog({ name, description, websiteUrl });
