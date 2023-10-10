@@ -21,5 +21,6 @@ app.get('/', (req: Request, res: Response) => {
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
    await client.db(dataBaseName).collection<postsViewType>('posts').deleteMany({})
    await client.db(dataBaseName).collection<blogsRepositoryType>('blogs').deleteMany({})
+   await client.db(dataBaseName).collection<blogsRepositoryType>('users').deleteMany({})
     res.sendStatus(204)
 })
