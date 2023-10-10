@@ -26,7 +26,7 @@ export enum InputDescription{
 }
 
 export interface IDefaultPagination<S> {
-    sortBy: S/* SortByEnum*/
+    sortBy: S /*SortByEnum*/
     sortDirection: Description
     pageNumber: number
     pageSize: number
@@ -34,7 +34,7 @@ export interface IDefaultPagination<S> {
 }
 
 export interface IQuery<S> {
-    sortBy: S/* SortByEnum*/
+    sortBy: S /*SortByEnum*/
     sortDirection: InputDescription
     pageNumber: number
     pageSize: number
@@ -49,4 +49,10 @@ export interface IPostPagination extends IDefaultPagination<SortPostsByEnum>{
 
 }
 
-
+export type PaginationType<I> = {
+    pagesCount: number
+    page: number
+    pageSize: number
+    totalCount: number
+    items: I[]
+}

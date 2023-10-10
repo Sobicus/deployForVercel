@@ -1,7 +1,5 @@
 import {body} from "express-validator";
 import {inputVal} from "./errorValidator";
-import {blogsService} from "../domain/blogs-service";
-
 
 export const validationPostsByBlogIdMidleware = [
     body('title')

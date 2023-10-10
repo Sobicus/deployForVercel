@@ -1,7 +1,7 @@
 import {blogBodyRequest} from "../routes/blogs-router";
 import {client, dataBaseName} from "./db";
 import {Filter, ObjectId} from "mongodb";
-import {IBlockPagination, IQuery, SortBlogsByEnum} from "../types/paggination-type";
+import {IBlockPagination, IQuery, PaginationType, SortBlogsByEnum} from "../types/paggination-type";
 import {postService} from "../domain/posts-service";
 import {postsViewType} from "./posts-repository";
 import {getBlogsPagination} from "../helpers/pagination-helpers";
@@ -22,16 +22,10 @@ export type BlogViewType = {
     createdAt: string
     isMembership: boolean
 }
-export type Paginated<T> = {
-    "pagesCount": number
-    "page": number
-    "pageSize": number
-    "totalCount": number
-    "items": T[]
-}
+
 
 export class BlogsRepository {
-    async findAllBlogs(pagination: IBlockPagination): Promise<Paginated<BlogViewType>> {
+    async findAllBlogs(pagination: IBlockPagination): Promise<PaginationType<BlogViewType>> {
         const filter: Filter<BlogViewType> = {name: {$regex: pagination.searchNameTerm, $options: 'i'}}
         const blogs = await client.db(dataBaseName)
             .collection<BlogViewType>('blogs')
@@ -79,7 +73,7 @@ export class BlogsRepository {
         }
     }
 
-    async findPostByBlogId(blogId: string, query: IQuery<SortBlogsByEnum>): Promise<Paginated<postsViewType> | null> {
+    async findPostByBlogId(blogId: string, query: IQuery<SortBlogsByEnum>): Promise<PaginationType<postsViewType> | null> {
         let blog = await client.db(dataBaseName)
             .collection<BlogViewType>('blogs')
             .findOne({_id: new ObjectId(blogId)})
@@ -135,7 +129,9 @@ export class BlogsRepository {
     }
 
     async deleteBlog(blogId: string): Promise<boolean> {
-        const resultDeleteBlog = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs').deleteOne({_id: new ObjectId(blogId)})
+        const resultDeleteBlog = await client.db(dataBaseName)
+            .collection<blogsRepositoryType>('blogs')
+            .deleteOne({_id: new ObjectId(blogId)})
         return resultDeleteBlog.deletedCount === 1
     }
 }

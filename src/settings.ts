@@ -4,6 +4,7 @@ import {postsRouter} from './routes/posts-router'
 import {client, dataBaseName} from "./repositories/db";
 import {postsViewType} from "./repositories/posts-repository";
 import {blogsRepositoryType} from "./repositories/blogs-repository";
+import { usersRouter } from './routes/users-router';
 
 export const app = express()
 app.use(express.json())
@@ -11,6 +12,7 @@ app.use(express.json())
 // app.use(express.json())
 app.use('/blogs', blogsRouter)
 app.use('/posts', postsRouter)
+app.use('/users', usersRouter)
 
 
 app.get('/', (req: Request, res: Response) => {

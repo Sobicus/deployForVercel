@@ -1,8 +1,8 @@
 import {postBodyRequest} from "../routes/posts-router";
-import {blogsRepositoryType, Paginated} from "./blogs-repository";
+import {blogsRepositoryType} from "./blogs-repository";
 import {client, dataBaseName} from "./db";
 import {ObjectId} from "mongodb";
-import {IPostPagination} from "../types/paggination-type";
+import {IPostPagination, PaginationType} from "../types/paggination-type";
 
 export type postsViewType = {
     id: string
@@ -22,8 +22,9 @@ export type createPostType = {
 }
 
 export class PostsRepository {
-    async findAllPosts(postsPagination: IPostPagination): Promise<Paginated<postsViewType>> {
-        const posts = await client.db(dataBaseName).collection<postsViewType>('posts')
+    async findAllPosts(postsPagination: IPostPagination): Promise<PaginationType<postsViewType>> {
+        const posts = await client.db(dataBaseName)
+            .collection<postsViewType>('posts')
             .find({})
             .sort({[postsPagination.sortBy]: postsPagination.sortDirection})
             .limit(postsPagination.pageSize)
@@ -35,14 +36,14 @@ export class PostsRepository {
         const pagesCount = Math.ceil(totalCount / postsPagination.pageSize)
         const allPosts = posts.map(p => (
             {
-                id: p._id.toString(),
-                title: p.title,
-                shortDescription: p.shortDescription,
-                content: p.content,
-                blogId: p.blogId,
-                blogName: p.blogName,
-                createdAt: p.createdAt
-            }))
+            id: p._id.toString(),
+            title: p.title,
+            shortDescription: p.shortDescription,
+            content: p.content,
+            blogId: p.blogId,
+            blogName: p.blogName,
+            createdAt: p.createdAt
+        }))
         return {
             pagesCount: pagesCount,
             page: postsPagination.pageNumber,
@@ -69,9 +70,13 @@ export class PostsRepository {
     }
 
     async createPost(newPost: createPostType): Promise<{ blogName: string, blogId: string } | null> {
-        let blog: blogsRepositoryType | null = await client.db(dataBaseName).collection<blogsRepositoryType>('blogs').findOne({_id: new ObjectId(newPost.blogId)})
+        let blog: blogsRepositoryType | null = await client.db(dataBaseName)
+            .collection<blogsRepositoryType>('blogs')
+            .findOne({_id: new ObjectId(newPost.blogId)})
         if (!blog) return null;
-        let newPostByDb = await client.db(dataBaseName).collection('posts').insertOne({...newPost, blogName: blog.name})
+        let newPostByDb = await client.db(dataBaseName)
+            .collection('posts')
+            .insertOne({...newPost, blogName: blog.name})
         const blogName = blog.name
         const blogId = newPostByDb.insertedId.toString()
         return {blogName, blogId}
@@ -83,7 +88,9 @@ export class PostsRepository {
     }
 
     async deletePost(postId: string): Promise<boolean> {
-        const resultDeletePost = await client.db(dataBaseName).collection<postsViewType>('posts').deleteOne({_id: new ObjectId(postId)})
+        const resultDeletePost = await client.db(dataBaseName)
+            .collection<postsViewType>('posts')
+            .deleteOne({_id: new ObjectId(postId)})
         return resultDeletePost.deletedCount === 1
     }
 }
