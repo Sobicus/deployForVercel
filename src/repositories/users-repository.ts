@@ -1,7 +1,7 @@
 import {client, dataBaseName} from "./db";
 import {ObjectId} from "mongodb";
 import {PaginationType} from "../types/paggination-type";
-import {IQueryUsers, IQueryUsersPagination} from "../helpers/pagination-users-helpers";
+import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
 
 //response:
 export type UsersOutputType = {
@@ -28,10 +28,18 @@ export type UsersDbType = {
 }
 export class UsersRepository {
     async findAllUsers(pagination: IQueryUsersPagination): Promise<PaginationType<UsersOutputType>> {
-        const filter = {
-            login: {$regex: pagination.searchLoginTerm, $options: 'i'},
-            email: {$regex: pagination.searchEmailTerm, $options: 'i'}
+        const filter = {}
+        if(!pagination.searchEmailTerm.trim() && !pagination.searchLoginTerm.trim()){
+            filter = {
+                $or:[{login: {$regex: pagination.searchLoginTerm, $options: 'i'}},
+                    {email: {$regex: pagination.searchEmailTerm, $options: 'i'}}]
+            }
         }
+        if(!pagination.searchEmailTerm.trim() && !pagination.searchLoginTerm.trim()){
+
+        }
+
+
         const users = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .find(filter)
@@ -39,7 +47,6 @@ export class UsersRepository {
             .limit(pagination.pageSize)
             .skip(pagination.skip)
             .toArray()
-
         const allUsers = users.map(u => ({
             id: u._id.toString(),
             login: u.login,
@@ -60,7 +67,6 @@ export class UsersRepository {
     }
 
     async createUser(createUserModel: UserServiceType): Promise<string> {
-
         const resultCreatedUser = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .insertOne({_id: new ObjectId(), ...createUserModel})
