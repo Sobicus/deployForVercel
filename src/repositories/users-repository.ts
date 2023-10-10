@@ -26,27 +26,18 @@ export type UsersDbType = {
     email: string
     createdAt: string
 }
-
-/*export type PaginationType<I> = {
-    pagesCount: number
-    page: number
-    pageSize: number
-    totalCount: number
-    items: I
-}*/
-
 export class UsersRepository {
-    async findAllUsers(pagnation: IQueryUsersPagination): Promise<PaginationType<UsersOutputType>> {
+    async findAllUsers(pagination: IQueryUsersPagination): Promise<PaginationType<UsersOutputType>> {
         const filter = {
-            login: {$regex: pagnation.searchLoginTerm, $options: 'i'},
-            email: {$regex: pagnation.searchEmailTerm, $options: 'i'}
+            login: {$regex: pagination.searchLoginTerm, $options: 'i'},
+            email: {$regex: pagination.searchEmailTerm, $options: 'i'}
         }
         const users = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .find(filter)
-            .sort({[pagnation.sortBy]: pagnation.sortDirection})
-            .limit(pagnation.pageSize)
-            .skip(pagnation.skip)
+            .sort({[pagination.sortBy]: pagination.sortDirection})
+            .limit(pagination.pageSize)
+            .skip(pagination.skip)
             .toArray()
 
         const allUsers = users.map(u => ({
@@ -58,11 +49,11 @@ export class UsersRepository {
         const totalCount = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .countDocuments(filter)
-        const pageCount = Math.ceil(totalCount / pagnation.pageSize)
+        const pageCount = Math.ceil(totalCount / pagination.pageSize)
         return {
             pagesCount: pageCount,
-            page: pagnation.pageNumber,
-            pageSize: pagnation.pageSize,
+            page: pagination.pageNumber,
+            pageSize: pagination.pageSize,
             totalCount: totalCount,
             items: allUsers
         }

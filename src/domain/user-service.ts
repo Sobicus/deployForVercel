@@ -1,6 +1,5 @@
 import {UsersRepository, UsersOutputType, UserServiceType} from "../repositories/users-repository";
-import {ObjectId} from "mongodb";
-import {IQueryUsers, IQueryUsersPagination} from "../helpers/pagination-users-helpers";
+import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
 
 export class UsersService {
     userRepo: UsersRepository
@@ -9,8 +8,8 @@ export class UsersService {
         this.userRepo = new UsersRepository()
     }
 
-    async findAllPosts(pagnation:IQueryUsersPagination) {
-        return await this.userRepo.findAllUsers(pagnation)
+    async findAllPosts(pagination:IQueryUsersPagination) {
+        return await this.userRepo.findAllUsers(pagination)
     }
 
     async createUser(login: string, passwordOut: string, email: string): Promise<UsersOutputType> {

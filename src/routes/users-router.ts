@@ -6,7 +6,7 @@ import {IQueryUsers, getPaginationUsersHelpers} from "../helpers/pagination-user
 
 export const usersRouter = Router()
 
-usersRouter.get('/', async (req: Request<{}, {}, {}, IQueryUsers>, res: Response) => {
+usersRouter.get('/', checkAuthorization, async (req: Request<{}, {}, {}, IQueryUsers>, res: Response) => {
     const usersPagination = getPaginationUsersHelpers(req.query)
     const users = await userService.findAllPosts(usersPagination)
     res.status(200).send(users)
