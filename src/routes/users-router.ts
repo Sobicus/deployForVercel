@@ -20,7 +20,8 @@ usersRouter.post('/', checkAuthorization, validationUsersMidleware,
 usersRouter.delete('/:id', checkAuthorization, async (req: RequestWithParams<{ id: string }>, res: Response) => {
         const deleteUser = userService.deleteUser(req.params.id)
         if (!deleteUser) {
-            return res.sendStatus(404)
+            res.sendStatus(404)
+            return
         }
         return res.sendStatus(204)
     }
