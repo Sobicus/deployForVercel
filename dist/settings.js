@@ -17,16 +17,19 @@ const express_1 = __importDefault(require("express"));
 const blogs_router_1 = require("./routes/blogs-router");
 const posts_router_1 = require("./routes/posts-router");
 const db_1 = require("./repositories/db");
+const users_router_1 = require("./routes/users-router");
 exports.app = (0, express_1.default)();
 exports.app.use(express_1.default.json());
 // app.use(express.json())
 exports.app.use('/blogs', blogs_router_1.blogsRouter);
 exports.app.use('/posts', posts_router_1.postsRouter);
+exports.app.use('/users', users_router_1.usersRouter);
 exports.app.get('/', (req, res) => {
     res.send('This first page if we connect to localhost:3000');
 });
 exports.app.delete('/testing/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.client.db(db_1.dataBaseName).collection('posts').deleteMany({});
     yield db_1.client.db(db_1.dataBaseName).collection('blogs').deleteMany({});
+    yield db_1.client.db(db_1.dataBaseName).collection('users').deleteMany({});
     res.sendStatus(204);
 }));

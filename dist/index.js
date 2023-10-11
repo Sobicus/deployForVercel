@@ -11,6 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const settings_1 = require("./settings");
 const db_1 = require("./repositories/db");
+/*
+process.on('uncaughtException',(error)=>{
+    console.log(error)})
+process.on('unhandledRejection',(reason)=>{
+    console.log(reason)})
+ */
 const port = process.env.PORT || 3000;
 const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, db_1.runDb)();

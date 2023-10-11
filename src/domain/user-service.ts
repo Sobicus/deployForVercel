@@ -20,7 +20,8 @@ export class UsersService {
     }
 
     async deleteUser(userId: string): Promise<boolean> {
-        return await this.userRepo.deleteUser(userId)
+         const result= await this.userRepo.deleteUser(userId)
+        return result
     }
 }
 

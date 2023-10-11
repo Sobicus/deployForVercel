@@ -30,7 +30,6 @@ exports.blogsRouter.get('/:id/', (req, res) => __awaiter(void 0, void 0, void 0,
     }
     res.status(200).send(blog);
 }));
-//--------- Find all posts createt byID---------------------------
 exports.blogsRouter.get('/:id/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogId = req.params.id;
     const queryParam = req.query;
@@ -40,41 +39,6 @@ exports.blogsRouter.get('/:id/posts', (req, res) => __awaiter(void 0, void 0, vo
         return;
     }
     res.status(200).send(posts);
-    /* let blog = await client.db(dataBaseName)
-         .collection<BlogViewType>('blogs')
-         .findOne({_id: new ObjectId(req.params.id)})
-     if (!blog) {
-         res.sendStatus(404)
-         return
-     }
-     const blogId = blog._id.toString()
-     const pagination = getBlogsPagination(req.query)
-     const posts = await client.db(dataBaseName)
-         .collection<postsViewType>('posts')
-         .find({blogId: blogId})
-         .sort({[pagination.sortBy]: pagination.sortDirection})
-         .skip(pagination.skip).limit(pagination.pageSize)
-         .toArray();
-     const allPosts = posts.map(p => ({
-         id: p._id.toString(),
-         title: p.title,
-         shortDescription: p.shortDescription,
-         content: p.content,
-         blogId: p.blogId,
-         blogName: p.blogName,
-         createdAt: p.createdAt
-     }))
-     const totalCount = await client.db(dataBaseName)
-         .collection<postsViewType>('posts')
-         .countDocuments({blogId: blogId})
-     const pagesCount = Math.ceil(totalCount / pagination.pageSize)
-     res.status(200).send({
-         "pagesCount": pagesCount,
-         "page": pagination.pageNumber,
-         "pageSize": pagination.pageSize,
-         "totalCount": totalCount,
-         "items": allPosts
-     })*/
 }));
 exports.blogsRouter.post('/:id/posts', authorization_check_middleware_1.checkAuthorization, ...input_postsByBlogId_validation_middleware_1.validationPostsByBlogIdMidleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogId = req.params.id;

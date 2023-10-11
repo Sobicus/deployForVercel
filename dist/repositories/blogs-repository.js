@@ -125,7 +125,9 @@ class BlogsRepository {
     }
     deleteBlog(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultDeleteBlog = yield db_1.client.db(db_1.dataBaseName).collection('blogs').deleteOne({ _id: new mongodb_1.ObjectId(blogId) });
+            const resultDeleteBlog = yield db_1.client.db(db_1.dataBaseName)
+                .collection('blogs')
+                .deleteOne({ _id: new mongodb_1.ObjectId(blogId) });
             return resultDeleteBlog.deletedCount === 1;
         });
     }

@@ -15,7 +15,8 @@ const mongodb_1 = require("mongodb");
 class PostsRepository {
     findAllPosts(postsPagination) {
         return __awaiter(this, void 0, void 0, function* () {
-            const posts = yield db_1.client.db(db_1.dataBaseName).collection('posts')
+            const posts = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
                 .find({})
                 .sort({ [postsPagination.sortBy]: postsPagination.sortDirection })
                 .limit(postsPagination.pageSize)
@@ -62,10 +63,14 @@ class PostsRepository {
     }
     createPost(newPost) {
         return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield db_1.client.db(db_1.dataBaseName).collection('blogs').findOne({ _id: new mongodb_1.ObjectId(newPost.blogId) });
+            let blog = yield db_1.client.db(db_1.dataBaseName)
+                .collection('blogs')
+                .findOne({ _id: new mongodb_1.ObjectId(newPost.blogId) });
             if (!blog)
                 return null;
-            let newPostByDb = yield db_1.client.db(db_1.dataBaseName).collection('posts').insertOne(Object.assign(Object.assign({}, newPost), { blogName: blog.name }));
+            let newPostByDb = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .insertOne(Object.assign(Object.assign({}, newPost), { blogName: blog.name }));
             const blogName = blog.name;
             const blogId = newPostByDb.insertedId.toString();
             return { blogName, blogId };
@@ -79,7 +84,9 @@ class PostsRepository {
     }
     deletePost(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultDeletePost = yield db_1.client.db(db_1.dataBaseName).collection('posts').deleteOne({ _id: new mongodb_1.ObjectId(postId) });
+            const resultDeletePost = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .deleteOne({ _id: new mongodb_1.ObjectId(postId) });
             return resultDeletePost.deletedCount === 1;
         });
     }

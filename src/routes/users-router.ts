@@ -18,7 +18,7 @@ usersRouter.post('/', checkAuthorization, validationUsersMidleware,
         res.status(201).send(newUser)
     })
 usersRouter.delete('/:id', checkAuthorization, async (req: RequestWithParams<{ id: string }>, res: Response) => {
-        const deleteUser = userService.deleteUser(req.params.id)
+        const deleteUser = await userService.deleteUser(req.params.id)
         if (!deleteUser) {
             res.sendStatus(404)
             return

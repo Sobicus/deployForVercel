@@ -74,10 +74,7 @@ export class UsersRepository {
         }
     }
 
-    async createUser(createUserModel
-                         :
-                         UserServiceType
-    ):
+    async createUser(createUserModel:UserServiceType):
         Promise<string> {
         const resultCreatedUser = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
