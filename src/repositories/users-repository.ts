@@ -85,11 +85,7 @@ export class UsersRepository {
         return resultCreatedUser.insertedId.toString()
     }
 
-    async deleteUser(userId
-                         :
-                         string
-    ):
-        Promise<boolean> {
+    async deleteUser(userId:string):Promise<boolean> {
         const resultDeleteUser = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .deleteOne({_id: new ObjectId(userId)})
