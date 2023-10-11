@@ -26,19 +26,27 @@ export type UsersDbType = {
     email: string
     createdAt: string
 }
+
 export class UsersRepository {
     async findAllUsers(pagination: IQueryUsersPagination): Promise<PaginationType<UsersOutputType>> {
-        const filter = {}
-        if(!pagination.searchEmailTerm.trim() && !pagination.searchLoginTerm.trim()){
-            filter = {
-                $or:[{login: {$regex: pagination.searchLoginTerm, $options: 'i'}},
-                    {email: {$regex: pagination.searchEmailTerm, $options: 'i'}}]
-            }
+        const filter = {
+            $or: [{login: {$regex: pagination.searchLoginTerm ?? '', $options: 'i'}},
+                {email: {$regex: pagination.searchEmailTerm ?? '', $options: 'i'}}]
         }
-        if(!pagination.searchEmailTerm.trim() && !pagination.searchLoginTerm.trim()){
+        /* const createFilter = (searchLoginTerm?: string, searchEmailTerm?: string) => {
+             if (searchLoginTerm && searchEmailTerm) {
+                 return {
+                     $or: [{login: {$regex: pagination.searchLoginTerm ?? '', $options: 'i'}},
+                         {email: {$regex: pagination.searchEmailTerm ?? '', $options: 'i'}}]
+                 }
+             }
+             if (searchLoginTerm) return {login: {$regex: searchLoginTerm}}
+             if (searchEmailTerm) return {email: {$regex: searchEmailTerm}}
+             return {}
 
-        }
+         }
 
+         const filter = createFilter()*/
 
         const users = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
@@ -66,14 +74,22 @@ export class UsersRepository {
         }
     }
 
-    async createUser(createUserModel: UserServiceType): Promise<string> {
+    async createUser(createUserModel
+                         :
+                         UserServiceType
+    ):
+        Promise<string> {
         const resultCreatedUser = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .insertOne({_id: new ObjectId(), ...createUserModel})
         return resultCreatedUser.insertedId.toString()
     }
 
-    async deleteUser(userId: string): Promise<boolean> {
+    async deleteUser(userId
+                         :
+                         string
+    ):
+        Promise<boolean> {
         const resultDeleteUser = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .deleteOne({_id: new ObjectId(userId)})
