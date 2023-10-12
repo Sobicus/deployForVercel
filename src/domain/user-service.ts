@@ -1,5 +1,6 @@
 import {UsersRepository, UsersOutputType, UserServiceType} from "../repositories/users-repository";
 import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
+import bcrypt from "bcrypt"
 
 export class UsersService {
     userRepo: UsersRepository
@@ -8,20 +9,46 @@ export class UsersService {
         this.userRepo = new UsersRepository()
     }
 
-    async findAllPosts(pagination:IQueryUsersPagination) {
+    async findAllPosts(pagination: IQueryUsersPagination) {
         return await this.userRepo.findAllUsers(pagination)
     }
 
-    async createUser(login: string, passwordOut: string, email: string): Promise<UsersOutputType> {
+    async createUser(login: string, password: string, email: string): Promise<UsersOutputType> {
+
+        const passwordSalt = await bcrypt.genSalt(10)
+        const passwordHash = await this._generateHash(password, passwordSalt)
+
         const createdAt = new Date().toISOString()
-        let createUserModel: UserServiceType = {login, password: passwordOut, email, createdAt}
+        let createUserModel: UserServiceType = {
+            login,
+            passwordSalt,
+            passwordHash,
+            email,
+            createdAt
+        }
         const id = await this.userRepo.createUser(createUserModel)
         return {id, login, email, createdAt}
     }
 
     async deleteUser(userId: string): Promise<boolean> {
-         const result= await this.userRepo.deleteUser(userId)
-        return result
+        return await this.userRepo.deleteUser(userId)
+
+    }
+
+    async _generateHash(password: string, salt: string): Promise<string> {
+        const hash = await bcrypt.hash(password, salt)
+        console.log('hashPassword ' + hash)
+        return hash
+    }
+
+    async checkCredentials(loginOrMail: string, password: string): Promise<boolean> {
+        const user = await this.userRepo.findByLoginOrEmail(loginOrMail)
+        if (!user) return false
+        const passwordHash = await this._generateHash(password, user.passwordSalt)
+        if (user.passwordHash !== passwordHash) {
+            return false
+        }
+        return true
     }
 }
 

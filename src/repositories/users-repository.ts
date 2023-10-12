@@ -13,7 +13,8 @@ export type UsersOutputType = {
 // service:
 export type UserServiceType = {
     login: string
-    password: string
+    passwordSalt: string
+    passwordHash: string
     email: string
     createdAt: string
 }
@@ -22,7 +23,8 @@ export type UserServiceType = {
 export type UsersDbType = {
     _id: ObjectId
     login: string
-    password: string
+    passwordSalt: string
+    passwordHash: string
     email: string
     createdAt: string
 }
@@ -74,7 +76,7 @@ export class UsersRepository {
         }
     }
 
-    async createUser(createUserModel:UserServiceType):
+    async createUser(createUserModel: UserServiceType):
         Promise<string> {
         const resultCreatedUser = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
@@ -82,10 +84,18 @@ export class UsersRepository {
         return resultCreatedUser.insertedId.toString()
     }
 
-    async deleteUser(userId:string):Promise<boolean> {
+    async deleteUser(userId: string): Promise<boolean> {
         const resultDeleteUser = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .deleteOne({_id: new ObjectId(userId)})
         return resultDeleteUser.deletedCount === 1
+    }
+
+    async findByLoginOrEmail(loginOrEmail: string): Promise<UsersDbType | null> {
+        const user = await client.db(dataBaseName)
+            .collection<UsersDbType>('users').findOne({
+                $or: [{login: loginOrEmail}, {email: loginOrEmail}]
+            })
+        return user
     }
 }
