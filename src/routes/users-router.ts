@@ -1,7 +1,7 @@
 import {Request, Response, Router} from "express";
 import {userService} from "../domain/user-service";
 import {checkAuthorization} from "../midlewares/authorization-check-middleware";
-import {validationUsersMidleware} from "../midlewares/input-user-validation-middleware";
+import {validationUsersMiddleware} from "../midlewares/input-user-validation-middleware";
 import {IQueryUsers, getPaginationUsersHelpers} from "../helpers/pagination-users-helpers";
 
 export const usersRouter = Router()
@@ -11,7 +11,7 @@ usersRouter.get('/', checkAuthorization, async (req: Request<{}, {}, {}, IQueryU
     const users = await userService.findAllPosts(usersPagination)
     res.status(200).send(users)
 })
-usersRouter.post('/', checkAuthorization, validationUsersMidleware,
+usersRouter.post('/', checkAuthorization, validationUsersMiddleware,
     async (req: postRequestWithBody<UsersInputRequest>, res: Response) => {
         const {login, password, email} = req.body
         const newUser = await userService.createUser(login, password, email)

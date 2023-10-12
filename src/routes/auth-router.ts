@@ -4,11 +4,13 @@ import {validationAuthMiddleware} from "../midlewares/input-auth-validation-midd
 
 export const authRouter = Router()
 
-authRouter.post('login', validationAuthMiddleware, async (req: PostRequestType<BOdyType>, res: Response) => {
+authRouter.post('/login', validationAuthMiddleware, async (req: PostRequestType<BOdyType>, res: Response) => {
     const checkResult = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!checkResult) return res.sendStatus(401)
     return res.sendStatus(204)
 })
+
+
 type PostRequestType<B> = Request<{}, {}, B, {}>
 type BOdyType = {
     loginOrEmail: string
