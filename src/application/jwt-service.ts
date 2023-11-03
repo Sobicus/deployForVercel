@@ -5,7 +5,7 @@ dotenv.config()
 export const jwtService = {
     async createJWT(userId:string) {
         const token = jwt.sign({userId}, process.env.JWT_SECRET || '333', {expiresIn: '1h'})
-        return token
+        return {accessToken:token}
     },
 
     async getUserIdByToken(token: string) {
