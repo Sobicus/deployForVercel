@@ -18,12 +18,16 @@ const blogs_router_1 = require("./routes/blogs-router");
 const posts_router_1 = require("./routes/posts-router");
 const db_1 = require("./repositories/db");
 const users_router_1 = require("./routes/users-router");
+const auth_router_1 = require("./routes/auth-router");
+const comments_router_1 = require("./routes/comments-router");
 exports.app = (0, express_1.default)();
 exports.app.use(express_1.default.json());
 // app.use(express.json())
 exports.app.use('/blogs', blogs_router_1.blogsRouter);
 exports.app.use('/posts', posts_router_1.postsRouter);
 exports.app.use('/users', users_router_1.usersRouter);
+exports.app.use('/auth', auth_router_1.authRouter);
+exports.app.use('/comments', comments_router_1.commentsRouter);
 exports.app.get('/', (req, res) => {
     res.send('This first page if we connect to localhost:3000');
 });

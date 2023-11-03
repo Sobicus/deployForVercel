@@ -104,7 +104,8 @@ class BlogsRepository {
     }
     createBlog(createModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultNewBlog = yield db_1.client.db(db_1.dataBaseName).collection('blogs')
+            const resultNewBlog = yield db_1.client.db(db_1.dataBaseName)
+                .collection('blogs')
                 .insertOne(createModel);
             return resultNewBlog.insertedId.toString();
         });
@@ -119,7 +120,9 @@ class BlogsRepository {
     }
     updateBlog(blogId, updateModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName).collection('blogs').updateOne({ _id: new mongodb_1.ObjectId(blogId) }, { $set: updateModel });
+            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName)
+                .collection('blogs')
+                .updateOne({ _id: new mongodb_1.ObjectId(blogId) }, { $set: updateModel });
             return resultUpdateModel.matchedCount === 1;
         });
     }

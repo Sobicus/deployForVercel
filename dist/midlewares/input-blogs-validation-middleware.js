@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validationBlogsMidleware = void 0;
+exports.validationBlogsMiddleware = void 0;
 const express_validator_1 = require("express-validator");
 const errorValidator_1 = require("./errorValidator");
-exports.validationBlogsMidleware = [
+exports.validationBlogsMiddleware = [
     (0, express_validator_1.body)('name')
         .isString().withMessage('Name not a string')
         .trim().notEmpty().withMessage('name can`t be empty and cannot consist of only spaces')

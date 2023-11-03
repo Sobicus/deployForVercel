@@ -78,7 +78,9 @@ class PostsRepository {
     }
     updatePost(postId, updateModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName).collection('posts').updateOne({ _id: new mongodb_1.ObjectId(postId) }, { $set: updateModel });
+            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .updateOne({ _id: new mongodb_1.ObjectId(postId) }, { $set: updateModel });
             return resultUpdateModel.matchedCount === 1;
         });
     }
@@ -88,6 +90,52 @@ class PostsRepository {
                 .collection('posts')
                 .deleteOne({ _id: new mongodb_1.ObjectId(postId) });
             return resultDeletePost.deletedCount === 1;
+        });
+    }
+    findCommentsByPostId(postId, paggination) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // const paggination = getCommentsPagination(query)
+            const commets = yield db_1.client.db(db_1.dataBaseName)
+                .collection('comments')
+                .find({ postId: postId })
+                .sort({ [paggination.sortBy]: paggination.sortDirection })
+                .limit(paggination.pageSize)
+                .skip(paggination.skip).toArray();
+            const comments = commets.map(el => ({
+                id: el._id.toString(),
+                content: el.content,
+                commentatorInfo: {
+                    userId: el.userId,
+                    userLogin: el.userLogin
+                },
+                createdAt: el.createdAt
+            }));
+            const totalCount = yield db_1.client.db(db_1.dataBaseName)
+                .collection('comments')
+                .countDocuments({ postId: postId });
+            const pageCount = Math.ceil(totalCount / paggination.pageSize);
+            return {
+                pagesCount: pageCount,
+                page: paggination.pageNumber,
+                pageSize: paggination.pageSize,
+                totalCount: totalCount,
+                items: comments
+            };
+        });
+    }
+    createCommetByPostId(comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const newComment = yield db_1.client.db(db_1.dataBaseName)
+                .collection('comments').insertOne(Object.assign({}, comment)); //<CommentsRepositoryType> can not
+            return {
+                id: newComment.insertedId.toString(),
+                content: comment.content,
+                commentatorInfo: {
+                    userLogin: comment.userLogin,
+                    userId: comment.userId
+                },
+                createdAt: comment.createdAt
+            };
         });
     }
 }

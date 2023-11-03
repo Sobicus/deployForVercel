@@ -1,8 +1,11 @@
 import {PostsRepository, postsViewType} from "../repositories/posts-repository";
 import {postBodyRequest} from "../routes/posts-router";
 import {IDefaultPagination, PaginationType, SortPostsByEnum} from "../types/paggination-type";
+import {UsersOutputType} from "../repositories/users-repository";
+import {newCommentType} from "../types/comments-type";
+import {DefaultCommentsPaginationType, queryCommentsType} from "../helpers/pagination-comments";
 
-export class PostsService {
+class PostsService {
     postRepo: PostsRepository
 
     constructor() {
@@ -29,6 +32,7 @@ export class PostsService {
         if (!mongoResponse) return null
         return {id: mongoResponse.blogId, blogName: mongoResponse.blogName, ...newPost};
     }
+
     async updatePost(postId: string, updateModel: postBodyRequest): Promise<boolean> {
         return await this.postRepo.updatePost(postId, updateModel)
     }
@@ -36,6 +40,21 @@ export class PostsService {
     async deletePost(postId: string): Promise<boolean> {
         const resultDeletePost = await this.postRepo.deletePost(postId)
         return resultDeletePost
+    }
+
+    async createCommetByPostId(postId: string, content: string, user: UsersOutputType) {
+        const comment: newCommentType = {
+            createdAt: new Date().toISOString(),
+            postId,
+            content,
+            userId: user.id,
+            userLogin: user.login
+        }
+        return await this.postRepo.createCommetByPostId(comment);
+    }
+
+    async findCommentsById(postId: string, paggination: DefaultCommentsPaginationType) {
+        return await this.postRepo.findCommentsByPostId(postId, paggination)
     }
 }
 

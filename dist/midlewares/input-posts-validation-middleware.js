@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validationPostsMidleware = void 0;
+exports.validationPostsMiddleware = void 0;
 const express_validator_1 = require("express-validator");
 const errorValidator_1 = require("./errorValidator");
 const blogs_service_1 = require("../domain/blogs-service");
-exports.validationPostsMidleware = [
+exports.validationPostsMiddleware = [
     (0, express_validator_1.body)('title')
         .isString().withMessage('Title not a string')
         .trim().notEmpty().withMessage('Title can`t be empty and cannot consist of only spaces')

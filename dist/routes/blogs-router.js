@@ -49,12 +49,12 @@ exports.blogsRouter.post('/:id/posts', authorization_check_middleware_1.checkAut
         return res.sendStatus(404);
     return res.status(201).send(post);
 }));
-exports.blogsRouter.post('/', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMidleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsRouter.post('/', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, description, websiteUrl } = req.body;
     const createdBlog = yield blogs_service_1.blogsService.createBlog({ name, description, websiteUrl });
     res.status(201).send(createdBlog);
 }));
-exports.blogsRouter.put('/:id', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMidleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsRouter.put('/:id', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { name, description, websiteUrl } = req.body;
     const blogIsUpdated = yield blogs_service_1.blogsService.updateBlog(req.params.id, { name, description, websiteUrl });
     if (!blogIsUpdated) {

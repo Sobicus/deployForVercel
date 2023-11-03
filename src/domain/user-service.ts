@@ -1,6 +1,6 @@
-import {UsersRepository, UsersOutputType, UserServiceType} from "../repositories/users-repository";
-import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
 import bcrypt from "bcrypt"
+import {UsersRepository, UsersOutputType, UserServiceType, UsersDbType} from "../repositories/users-repository";
+import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
 
 export class UsersService {
     userRepo: UsersRepository
@@ -32,7 +32,6 @@ export class UsersService {
 
     async deleteUser(userId: string): Promise<boolean> {
         return await this.userRepo.deleteUser(userId)
-
     }
 
     async _generateHash(password: string, salt: string): Promise<string> {
@@ -41,15 +40,20 @@ export class UsersService {
         return hash
     }
 
-    async checkCredentials(loginOrMail: string, password: string): Promise<boolean> {
+    async checkCredentials(loginOrMail: string, password: string): Promise<null | UserServiceType> {
         const user = await this.userRepo.findByLoginOrEmail(loginOrMail)
-        if (!user) return false
+        if (!user) return null
         const passwordHash = await this._generateHash(password, user.passwordSalt)
-        if (user.passwordHash !== passwordHash) {
-            return false
-        }
-        return true
+        //return user.passwordHash === passwordHash; // if this true return users
+        // return user._id.toString()
+        if (user.passwordHash !== passwordHash) return null
+        return user
     }
+
+    async findUserById(userId: string): Promise<UsersOutputType | null> {
+        return await this.userRepo.findUserById(userId)
+    }
+
 }
 
 export const userService = new UsersService()
