@@ -1,62 +1,142 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postRepository = exports.postDb = void 0;
-const blogs_repository_1 = require("./blogs-repository");
-exports.postDb = [{
-        id: "1dq",
-        title: "eve",
-        shortDescription: "online",
-        content: "pve/pvp",
-        blogId: "13",
-        blogName: "20yers+"
-    }, {
-        id: "2dq",
-        title: "string",
-        shortDescription: "string",
-        content: "string",
-        blogId: "string",
-        blogName: "string"
-    }];
-class postsRepository {
-    findAllPosts() {
-        return exports.postDb;
+exports.PostsRepository = void 0;
+const db_1 = require("./db");
+const mongodb_1 = require("mongodb");
+class PostsRepository {
+    findAllPosts(postsPagination) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const posts = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .find({})
+                .sort({ [postsPagination.sortBy]: postsPagination.sortDirection })
+                .limit(postsPagination.pageSize)
+                .skip(postsPagination.skip)
+                .toArray();
+            const totalCount = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .countDocuments();
+            const pagesCount = Math.ceil(totalCount / postsPagination.pageSize);
+            const allPosts = posts.map(p => ({
+                id: p._id.toString(),
+                title: p.title,
+                shortDescription: p.shortDescription,
+                content: p.content,
+                blogId: p.blogId,
+                blogName: p.blogName,
+                createdAt: p.createdAt
+            }));
+            return {
+                pagesCount: pagesCount,
+                page: postsPagination.pageNumber,
+                pageSize: postsPagination.pageSize,
+                totalCount: totalCount,
+                items: allPosts
+            };
+        });
     }
     findPostById(postId) {
-        return exports.postDb.find(p => p.id === postId);
-    }
-    createPost(title, shortDescription, content, blogId) {
-        var _a;
-        const blogName = (_a = blogs_repository_1.BlogRepository.findBlogById(blogId)) === null || _a === void 0 ? void 0 : _a.name;
-        if (typeof (blogName) === 'string' && typeof (blogName) !== 'undefined') {
-            const newPost = {
-                id: (+new Date() + ''),
-                title,
-                shortDescription,
-                content,
-                blogId,
-                blogName
+        return __awaiter(this, void 0, void 0, function* () {
+            let post = yield db_1.client.db(db_1.dataBaseName).collection('posts').findOne({ _id: new mongodb_1.ObjectId(postId) });
+            if (!post) {
+                return null;
+            }
+            return {
+                id: post._id.toString(),
+                title: post.title,
+                shortDescription: post.shortDescription,
+                content: post.content,
+                blogId: post.blogId,
+                blogName: post.blogName,
+                createdAt: post.createdAt
             };
-            exports.postDb.push(newPost);
-        }
-        return exports.postDb[exports.postDb.length - 1];
+        });
+    }
+    createPost(newPost) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let blog = yield db_1.client.db(db_1.dataBaseName)
+                .collection('blogs')
+                .findOne({ _id: new mongodb_1.ObjectId(newPost.blogId) });
+            if (!blog)
+                return null;
+            let newPostByDb = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .insertOne(Object.assign(Object.assign({}, newPost), { blogName: blog.name }));
+            const blogName = blog.name;
+            const blogId = newPostByDb.insertedId.toString();
+            return { blogName, blogId };
+        });
     }
     updatePost(postId, updateModel) {
-        const post = this.findPostById(postId);
-        if (!post) {
-            return false;
-        }
-        const postIndex = exports.postDb.findIndex(p => p.id === postId);
-        const changePost = Object.assign(Object.assign({}, post), updateModel);
-        exports.postDb.splice(postIndex, 1, changePost);
-        return true;
+        return __awaiter(this, void 0, void 0, function* () {
+            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .updateOne({ _id: new mongodb_1.ObjectId(postId) }, { $set: updateModel });
+            return resultUpdateModel.matchedCount === 1;
+        });
     }
     deletePost(postId) {
-        const indexToDelete = exports.postDb.findIndex(p => p.id === postId);
-        if (indexToDelete === -1) {
-            return false;
-        }
-        exports.postDb.splice(indexToDelete, 1);
-        return true;
+        return __awaiter(this, void 0, void 0, function* () {
+            const resultDeletePost = yield db_1.client.db(db_1.dataBaseName)
+                .collection('posts')
+                .deleteOne({ _id: new mongodb_1.ObjectId(postId) });
+            return resultDeletePost.deletedCount === 1;
+        });
+    }
+    findCommentsByPostId(postId, paggination) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // const paggination = getCommentsPagination(query)
+            const commets = yield db_1.client.db(db_1.dataBaseName)
+                .collection('comments')
+                .find({ postId: postId })
+                .sort({ [paggination.sortBy]: paggination.sortDirection })
+                .limit(paggination.pageSize)
+                .skip(paggination.skip).toArray();
+            const comments = commets.map(el => ({
+                id: el._id.toString(),
+                content: el.content,
+                commentatorInfo: {
+                    userId: el.userId,
+                    userLogin: el.userLogin
+                },
+                createdAt: el.createdAt
+            }));
+            const totalCount = yield db_1.client.db(db_1.dataBaseName)
+                .collection('comments')
+                .countDocuments({ postId: postId });
+            const pageCount = Math.ceil(totalCount / paggination.pageSize);
+            return {
+                pagesCount: pageCount,
+                page: paggination.pageNumber,
+                pageSize: paggination.pageSize,
+                totalCount: totalCount,
+                items: comments
+            };
+        });
+    }
+    createCommetByPostId(comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const newComment = yield db_1.client.db(db_1.dataBaseName)
+                .collection('comments').insertOne(Object.assign({}, comment)); //<CommentsRepositoryType> can not
+            return {
+                id: newComment.insertedId.toString(),
+                content: comment.content,
+                commentatorInfo: {
+                    userLogin: comment.userLogin,
+                    userId: comment.userId
+                },
+                createdAt: comment.createdAt
+            };
+        });
     }
 }
-exports.postRepository = new postsRepository();
+exports.PostsRepository = PostsRepository;

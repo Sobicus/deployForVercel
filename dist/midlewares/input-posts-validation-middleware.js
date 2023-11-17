@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validationPostsMidleware = void 0;
+exports.validationPostsMiddleware = void 0;
 const express_validator_1 = require("express-validator");
-const blogs_repository_1 = require("../repositories/blogs-repository");
 const errorValidator_1 = require("./errorValidator");
-exports.validationPostsMidleware = [
+const blogs_service_1 = require("../domain/blogs-service");
+exports.validationPostsMiddleware = [
     (0, express_validator_1.body)('title')
         .isString().withMessage('Title not a string')
         .trim().notEmpty().withMessage('Title can`t be empty and cannot consist of only spaces')
@@ -27,7 +27,7 @@ exports.validationPostsMidleware = [
         .trim().notEmpty().withMessage('Content can`t be empty and cannot consist of only spaces')
         .isString().trim().isLength({ max: 1000 }).withMessage('Content cannot be more than 1000 characters'),
     (0, express_validator_1.body)('blogId').custom((value) => __awaiter(void 0, void 0, void 0, function* () {
-        const blogIsExist = yield blogs_repository_1.BlogRepository.findBlogById(value);
+        const blogIsExist = yield blogs_service_1.blogsService.findBlogById(value);
         if (!blogIsExist) {
             throw new Error("Blog not exist");
         }
