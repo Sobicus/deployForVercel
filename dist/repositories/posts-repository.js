@@ -70,10 +70,10 @@ class PostsRepository {
                 return null;
             let newPostByDb = yield db_1.client.db(db_1.dataBaseName)
                 .collection('posts')
-                .insertOne(Object.assign(Object.assign({}, newPost), { blogName: blog.name }));
+                .insertOne(Object.assign(Object.assign({}, newPost), { blogName: blog.name, _id: new mongodb_1.ObjectId() }));
             const blogName = blog.name;
-            const blogId = newPostByDb.insertedId.toString();
-            return { blogName, blogId };
+            const postId = newPostByDb.insertedId.toString();
+            return { blogName, postId };
         });
     }
     updatePost(postId, updateModel) {

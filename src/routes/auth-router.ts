@@ -2,8 +2,6 @@ import {Request, Response, Router} from "express";
 import {userService} from "../domain/user-service";
 import {jwtService} from "../application/jwt-service";
 import {authMiddleware} from "../midlewares/auth-middleware";
-import nodemailer from 'nodemailer'
-import {emailAdapter} from "../adapters/email-adapter";
 import {authService} from "../domain/auth-service";
 import {validationAuthLoginMiddleware} from "../midlewares/input-auth-validation-middleware";
 import {validationUsersMiddleware} from "../midlewares/input-user-validation-middleware";
