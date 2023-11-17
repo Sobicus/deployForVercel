@@ -17,3 +17,4 @@ export const validationUsersMiddleware = [
         .matches('^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$').withMessage('Email must be include type like forexample@gmail.com'),
     inputVal
 ]
+    // ^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$

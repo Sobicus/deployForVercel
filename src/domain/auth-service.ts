@@ -4,6 +4,8 @@ import {UserServiceType} from "../repositories/users-repository";
 
 class AuthService {
     async createUser(login: string, password: string, email: string): Promise<boolean | null> {
+        const checkUser = await userService.findUserByLoginOrEmail(login, email)
+        if(checkUser)return null
         const confirmationCode = await userService.createUser(login, password, email)
         try {
             await emailAdapter.sendEmail(email, confirmationCode)

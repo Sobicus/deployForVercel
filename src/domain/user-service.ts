@@ -78,6 +78,9 @@ class UsersService {
     async findUserByEmail(email: string): Promise<UserServiceType | null> {
        return  await this.userRepo.findByLoginOrEmail(email)
     }
+    async findUserByLoginOrEmail(login:string,email:string):Promise<UsersDbType | null>{
+        return await this.userRepo.findUserByLoginOrEmail(login,email)
+    }
 }
 
 export const userService = new UsersService()

@@ -99,10 +99,10 @@ export class UsersRepository {
         return resultDeleteUser.deletedCount === 1
     }
 
-    async findByLoginOrEmail(loginOrEmail: string): Promise<UserServiceType | null> {
+    async findByLoginOrEmail(loginOrMail: string): Promise<UserServiceType | null> {
         const user = await client.db(dataBaseName)
             .collection<UsersDbType>('users').findOne({
-                $or: [{login: loginOrEmail}, {email: loginOrEmail}]
+                $or: [{login: loginOrMail}, {email: loginOrMail}]
             })
         return (user ? {
             id: user._id.toString(),
@@ -140,10 +140,19 @@ export class UsersRepository {
         return user
     }
 
-    async updateConfirmation(id:ObjectId):Promise<boolean>{
+    async updateConfirmation(id: ObjectId): Promise<boolean> {
         const result = await client.db(dataBaseName)
             .collection<UsersDbType>('users')
-            .updateOne({_id:id}, {$set:{'emailConfirmation.isConfirmed': true}})
-        return result.matchedCount===1
+            .updateOne({_id: id}, {$set: {'emailConfirmation.isConfirmed': true}})
+        return result.matchedCount === 1
     }
+
+    async findUserByLoginOrEmail(login: string, email: string):Promise<UsersDbType | null> {
+        const user = client.db(dataBaseName)
+            .collection<UsersDbType>('users')
+            .findOne({$or: [{login}, {email}]})
+        if (!user) return null
+        return user
+    }
+
 }
