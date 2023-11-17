@@ -3,7 +3,7 @@ import {emailAdapter} from "../adapters/email-adapter";
 import {UserServiceType} from "../repositories/users-repository";
 
 class AuthService {
-    async createUser(login: string, password: string, email: string): Promise<string | null> {
+    async createUser(login: string, password: string, email: string): Promise<boolean | null> {
         const confirmationCode = await userService.createUser(login, password, email)
         try {
             await emailAdapter.sendEmail(email, confirmationCode)
@@ -12,7 +12,7 @@ class AuthService {
             //await userService.deleteUser(newUser.id)
             return null
         }
-        return confirmationCode
+        return true
     }
 
     async confirmEmail(confirmationCode: string):Promise<boolean> {
