@@ -5,6 +5,8 @@ import {authMiddleware} from "../midlewares/auth-middleware";
 import {authService} from "../domain/auth-service";
 import {validationAuthLoginMiddleware} from "../midlewares/input-auth-validation-middleware";
 import {validationUsersMiddleware} from "../midlewares/input-user-validation-middleware";
+import {body} from "express-validator";
+import {inputVal} from "../midlewares/errorValidator";
 
 export const authRouter = Router()
 
@@ -37,7 +39,7 @@ authRouter.post('/registration', validationUsersMiddleware, async (req: PostRequ
         return res.sendStatus(204)
     }
 )
-authRouter.post('/registration-confirmation', async (req: PostRequestType<{ code: string }>, res: Response) => {
+authRouter.post('/registration-confirmation',async (req: PostRequestType<{ code: string }>, res: Response) => {
     const result = await authService.confirmEmail(req.body.code)
     if (!result) {
         return res.status(400).send({
@@ -51,7 +53,12 @@ authRouter.post('/registration-confirmation', async (req: PostRequestType<{ code
     }
     return res.sendStatus(204)
 })
-authRouter.post('/registration-email-resending', async (req: PostRequestType<{ email: string }>, res: Response) => {
+authRouter.post('/registration-email-resending', body('email')
+    .custom(async(email) => {
+        const checkUser = await userService.findUserByEmailOrLogin(email)
+        if(checkUser) throw new Error(' already exist by email')
+        return true
+    }),inputVal,async (req: PostRequestType<{ email: string }>, res: Response) => {
     const result = await authService.resendingRegistrationEmail(req.body.email)
     if (!result) {
         return res.status(400).send({
