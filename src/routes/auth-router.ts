@@ -39,10 +39,10 @@ authRouter.post('/registration', validationUsersMiddleware, async (req: PostRequ
         return res.sendStatus(204)
     }
 )
-authRouter.post('/registration-confirmation',async (req: PostRequestType<{ code: string }>, res: Response) => {
+authRouter.post('/registration-confirmation', async (req: PostRequestType<{ code: string }>, res: Response) => {
     const result = await authService.confirmEmail(req.body.code)
-    console.log('result registration-confirmation',result)
-    console.log('req.body.code',req.body.code)
+    console.log('result registration-confirmation', result)
+    console.log('req.body.code', req.body.code)
     if (!result) {
         return res.status(400).send({
             "errorsMessages": [
@@ -56,11 +56,11 @@ authRouter.post('/registration-confirmation',async (req: PostRequestType<{ code:
     return res.sendStatus(204)
 })
 authRouter.post('/registration-email-resending', body('email')
-    .custom(async(email) => {
+    .custom(async (email) => {
         const checkUser = await userService.findUserByEmailOrLogin(email)
-        if(checkUser) throw new Error(' already exist by email')
+        if (checkUser?.emailConfirmation.isConfirmed === true) throw new Error(' already exist by email')
         return true
-    }),inputVal,async (req: PostRequestType<{ email: string }>, res: Response) => {
+    }), inputVal, async (req: PostRequestType<{ email: string }>, res: Response) => {
     const result = await authService.resendingRegistrationEmail(req.body.email)
     if (!result) {
         return res.status(400).send({

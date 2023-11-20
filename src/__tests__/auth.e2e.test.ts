@@ -10,7 +10,7 @@ describe('auth', () => {
         await request(app).post('/auth/registration').send({
             login: 'MyTest',
             password: 'qwerty',
-            email: 'maksymdeveloper88@gmail.com'
+            email: 'simsbury65@gmail.com'
         }).expect(204)
     })
     it('should return 204 user confirmation', async () => {
