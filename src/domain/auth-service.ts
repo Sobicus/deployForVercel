@@ -19,8 +19,10 @@ class AuthService {
 
     async confirmEmail(confirmationCode: string):Promise<boolean> {
         const user = await userService.findUserByConfirmationCode(confirmationCode)
+        console.log('user',user)
+        console.log('user',user)
         if (!user) return false
-        if (user.emailConfirmation.confirmationCode) return false
+        if (!user.emailConfirmation.confirmationCode) return false
         if (user.emailConfirmation.confirmationCode !== confirmationCode) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
         let result = await userService.updateConfirmation(user._id)

@@ -41,6 +41,8 @@ authRouter.post('/registration', validationUsersMiddleware, async (req: PostRequ
 )
 authRouter.post('/registration-confirmation',async (req: PostRequestType<{ code: string }>, res: Response) => {
     const result = await authService.confirmEmail(req.body.code)
+    console.log('result registration-confirmation',result)
+    console.log('req.body.code',req.body.code)
     if (!result) {
         return res.status(400).send({
             "errorsMessages": [
