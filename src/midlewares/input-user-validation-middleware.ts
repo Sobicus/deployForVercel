@@ -22,6 +22,12 @@ export const validationUsersMiddleware = [
                     if(checkUser) throw new Error(' already exist by email')
             return true
         }),
+    body('login')
+        .custom(async(login) => {
+            const checkUser = await userService.findUserByEmailOrLogin(login)
+                    if(checkUser) throw new Error(' already exist by login')
+            return true
+        }),
     inputVal
 ]
     // ^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$
