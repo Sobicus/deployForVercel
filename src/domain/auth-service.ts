@@ -4,8 +4,8 @@ import {UserServiceType} from "../repositories/users-repository";
 
 class AuthService {
     async createUser(login: string, password: string, email: string): Promise<boolean | null> {
-        const checkUser = await userService.findUserByLoginOrEmail(login, email)
-        if(checkUser)return null
+        /*const checkUser = await userService.findUserByLoginOrEmail(login, email)
+        if(checkUser)return null*/
         const confirmationCode = await userService.createUser(login, password, email)
         try {
             await emailAdapter.sendEmail(email, confirmationCode)
@@ -27,7 +27,7 @@ class AuthService {
         return result
     }
     async resendingRegistrationEmail(email:string): Promise<boolean | null>{
-        const result = await userService.findUserByEmail(email)
+        const result = await userService.findUserByEmailOrLogin(email)
         if(!result) return null
         if(result.emailConfirmation.isConfirmed) return null
         try{

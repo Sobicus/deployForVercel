@@ -75,12 +75,12 @@ class UsersService {
         return await this.userRepo.updateConfirmation(id)
     }
 
-    async findUserByEmail(email: string): Promise<UserServiceType | null> {
-       return  await this.userRepo.findByLoginOrEmail(email)
+    async findUserByEmailOrLogin(emailOrLogin: string): Promise<UserServiceType | null> {
+       return  await this.userRepo.findByLoginOrEmail(emailOrLogin)
     }
-    async findUserByLoginOrEmail(login:string,email:string):Promise<UsersDbType | null>{
+    /*async findUserByLoginOrEmail(login:string,email:string):Promise<UsersDbType | null>{
         return await this.userRepo.findUserByLoginOrEmail(login,email)
-    }
+    }*/
 }
 
 export const userService = new UsersService()

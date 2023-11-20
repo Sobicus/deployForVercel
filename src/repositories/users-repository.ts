@@ -147,7 +147,7 @@ export class UsersRepository {
         return result.matchedCount === 1
     }
 
-    async findUserByLoginOrEmail(login: string, email: string): Promise<UsersDbType | null> {
+    /*async findUserByLoginOrEmail(login: string, email: string): Promise<UsersDbType | null> {
         const user = client.db(dataBaseName)
             .collection<UsersDbType>('users')
             .findOne({
@@ -155,6 +155,6 @@ export class UsersRepository {
             })
         if (!user) return null
         return user
-    }
+    }*/
 
 }
