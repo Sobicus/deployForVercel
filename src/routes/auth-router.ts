@@ -62,7 +62,7 @@ authRouter.post('/registration-email-resending', body('email')
         return true
     }), inputVal, async (req: PostRequestType<{ email: string }>, res: Response) => {
     const result = await authService.resendingRegistrationEmail(req.body.email)
-    if (!result) {
+    /*if (!result) {
         return res.status(400).send({
             "errorsMessages": [
                 {
@@ -71,7 +71,7 @@ authRouter.post('/registration-email-resending', body('email')
                 }
             ]
         })
-    }
+    }*/
     return res.sendStatus(204)
 })
 

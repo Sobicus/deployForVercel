@@ -2,6 +2,7 @@ import {client, dataBaseName} from "./db";
 import {ObjectId} from "mongodb";
 import {PaginationType} from "../types/paggination-type";
 import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
+import {randomUUID} from "crypto";
 
 
 //response:
@@ -156,5 +157,10 @@ export class UsersRepository {
         if (!user) return null
         return user
     }*/
-
+async updateCodeAfterResend(id: string){
+    const result=await client.db(dataBaseName)
+        .collection<UsersDbType>('users')
+        .updateOne({_id:new ObjectId(id)}, {$set: {'emailConfirmation.confirmationCode': randomUUID()}})
+    return result.matchedCount === 1
+}
 }

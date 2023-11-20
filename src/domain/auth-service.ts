@@ -29,11 +29,12 @@ class AuthService {
         return result
     }
     async resendingRegistrationEmail(email:string): Promise<boolean | null>{
-        const result = await userService.findUserByEmailOrLogin(email)
-        if(!result) return null
-        if(result.emailConfirmation.isConfirmed) return null
+        const user = await userService.findUserByEmailOrLogin(email)
+        if(!user) return null
+        if(user.emailConfirmation.isConfirmed) return null
+        await userService.updateCodeAfterResend(user.id!)
         try{
-            await emailAdapter.sendEmail(email, result.emailConfirmation.confirmationCode)
+            await emailAdapter.sendEmail(email, user.emailConfirmation.confirmationCode)
         }catch (error){
             console.log(error)
             return null

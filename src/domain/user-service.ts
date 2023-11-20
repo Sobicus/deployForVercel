@@ -1,5 +1,11 @@
 import bcrypt from "bcrypt"
-import {UsersRepository, UsersOutputType, UserServiceType, UsersDbType} from "../repositories/users-repository";
+import {
+    UsersRepository,
+    UsersOutputType,
+    UserServiceType,
+    UsersDbType,
+    EmailConfirmation
+} from "../repositories/users-repository";
 import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
 import {randomUUID} from "crypto";
 import add from "date-fns/add";
@@ -73,6 +79,9 @@ class UsersService {
 
     async updateConfirmation(id: ObjectId): Promise<boolean> {
         return await this.userRepo.updateConfirmation(id)
+    }
+    async updateCodeAfterResend(id: string) {
+        return await this.userRepo.updateCodeAfterResend(id)
     }
 
     async findUserByEmailOrLogin(emailOrLogin: string): Promise<UserServiceType | null> {
