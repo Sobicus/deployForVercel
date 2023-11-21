@@ -39,7 +39,12 @@ authRouter.post('/registration', validationUsersMiddleware, async (req: PostRequ
         return res.sendStatus(204)
     }
 )
-authRouter.post('/registration-confirmation', async (req: PostRequestType<{ code: string }>, res: Response) => {
+authRouter.post('/registration-confirmation', body('code')
+    .custom(async (code) => {
+        const checkUser = await userService.findUserByConfirmationCode(code)
+        if (checkUser?.emailConfirmation.isConfirmed === true) throw new Error(' already exist by email')
+        return true
+    }), inputVal, async (req: PostRequestType<{ code: string }>, res: Response) => {
     const result = await authService.confirmEmail(req.body.code)
     console.log('result registration-confirmation', result)
     console.log('req.body.code', req.body.code)
@@ -56,9 +61,13 @@ authRouter.post('/registration-confirmation', async (req: PostRequestType<{ code
     return res.sendStatus(204)
 })
 authRouter.post('/registration-email-resending', body('email')
+    .isString().withMessage('Email not a string')
+    .trim().notEmpty().withMessage('Email can`t be empty and cannot consist of only spaces')
+    .matches('^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$').withMessage('Email must be include type like forexample@gmail.com')
     .custom(async (email) => {
         const checkUser = await userService.findUserByEmailOrLogin(email)
-        if (checkUser?.emailConfirmation.isConfirmed === true) throw new Error(' already exist by email')
+        if (!checkUser) throw new Error(' user not found')
+        if (checkUser.emailConfirmation.isConfirmed) throw new Error(' already exist by email')
         return true
     }), inputVal, async (req: PostRequestType<{ email: string }>, res: Response) => {
     const result = await authService.resendingRegistrationEmail(req.body.email)

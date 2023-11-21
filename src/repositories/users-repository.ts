@@ -157,10 +157,10 @@ export class UsersRepository {
         if (!user) return null
         return user
     }*/
-async updateCodeAfterResend(id: string){
-    const result=await client.db(dataBaseName)
-        .collection<UsersDbType>('users')
-        .updateOne({_id:new ObjectId(id)}, {$set: {'emailConfirmation.confirmationCode': randomUUID()}})
-    return result.matchedCount === 1
-}
+    async updateCodeAfterResend(id: string, newCode: string) {
+        const result = await client.db(dataBaseName)
+            .collection<UsersDbType>('users')
+            .updateOne({_id: new ObjectId(id)}, {$set: {'emailConfirmation.confirmationCode': newCode}})
+        return result.matchedCount === 1
+    }
 }

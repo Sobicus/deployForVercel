@@ -1,6 +1,7 @@
 import {userService} from "./user-service";
 import {emailAdapter} from "../adapters/email-adapter";
 import {UserServiceType} from "../repositories/users-repository";
+import {randomUUID} from "crypto";
 
 class AuthService {
     async createUser(login: string, password: string, email: string): Promise<boolean | null> {
@@ -32,9 +33,10 @@ class AuthService {
         const user = await userService.findUserByEmailOrLogin(email)
         if(!user) return null
         if(user.emailConfirmation.isConfirmed) return null
-        await userService.updateCodeAfterResend(user.id!)
+        const newCode = randomUUID()
+        await userService.updateCodeAfterResend(user.id!,newCode)
         try{
-            await emailAdapter.sendEmail(email, user.emailConfirmation.confirmationCode)
+            await emailAdapter.sendEmail(email, newCode/*user.emailConfirmation.confirmationCode*/)
         }catch (error){
             console.log(error)
             return null

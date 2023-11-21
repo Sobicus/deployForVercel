@@ -61,7 +61,7 @@ class UsersService {
     async checkCredentials(loginOrMail: string, password: string): Promise<null | UserServiceType> {
         const user = await this.userRepo.findByLoginOrEmail(loginOrMail)
         if (!user) return null
-        if (!user.emailConfirmation.isConfirmed) return null
+        //if (!user.emailConfirmation.isConfirmed) return null
         const passwordHash = await this._generateHash(password, user.passwordSalt)
         //return user.passwordHash === passwordHash; // if this true return users
         // return user._id.toString()
@@ -80,13 +80,15 @@ class UsersService {
     async updateConfirmation(id: ObjectId): Promise<boolean> {
         return await this.userRepo.updateConfirmation(id)
     }
-    async updateCodeAfterResend(id: string) {
-        return await this.userRepo.updateCodeAfterResend(id)
+
+    async updateCodeAfterResend(id: string, newCode: string) {
+        return await this.userRepo.updateCodeAfterResend(id, newCode)
     }
 
     async findUserByEmailOrLogin(emailOrLogin: string): Promise<UserServiceType | null> {
-       return  await this.userRepo.findByLoginOrEmail(emailOrLogin)
+        return await this.userRepo.findByLoginOrEmail(emailOrLogin)
     }
+
     /*async findUserByLoginOrEmail(login:string,email:string):Promise<UsersDbType | null>{
         return await this.userRepo.findUserByLoginOrEmail(login,email)
     }*/
