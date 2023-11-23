@@ -8,20 +8,16 @@ export const jwtService = {
         return {accessToken:token}
     },
     async createRefreshJWT(userId:string) {
-        const token = jwt.sign({userId}, process.env.JWT_SECRET || '123', {expiresIn: '20s'})
+        const token = jwt.sign({userId}, process.env.JWT_SECRET || '222', {expiresIn: '20s'})
         return {refreshToken:token}
     },
 
     async getUserIdByToken(token: string) {
         try {
-            console.log('token', token)
-            const result: any = jwt.verify(token, process.env.JWT_SECRET || '123')
-            console.log('result', result)
+            const result: any = jwt.verify(token, process.env.JWT_SECRET || '222')
             return result.userId
         } catch (error) {
             return null
         }
     }
 }
-
-
