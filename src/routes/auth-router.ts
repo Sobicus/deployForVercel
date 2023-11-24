@@ -22,7 +22,7 @@ authRouter.post('/login', validationAuthLoginMiddleware, async (req: PostRequest
     console.log('accessToken', accessToken)
     console.log('refreshToken', refreshToken)
     res.status(200)
-        .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
+        .cookie('refreshToken', refreshToken.refreshToken, {httpOnly: true, secure: true})
         .send(accessToken)
     return
 })
@@ -80,21 +80,22 @@ authRouter.post('/registration-email-resending', body('email')
     return res.sendStatus(204)
 })
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken
+    const refreshToken: string = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401)
+    const userId = await jwtService.getUserIdByToken(refreshToken)
+    console.log("userId in token",userId)
+    if(!userId) return res.sendStatus(401)
     const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
     console.log(isExpiredToken)
     if(isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
-    const userId = await jwtService.getUserIdByToken(refreshToken.refreshToken)
-    console.log(userId)
-    if(!userId) return res.sendStatus(401)
+
     const newAccessToken = await jwtService.createAccessJWT(userId)
     const newRefreshToken = await jwtService.createRefreshJWT(userId)
     await jwtTokensService.expiredTokens(refreshToken)//do need something check?
     console.log('refresh-token newAccessToken', newAccessToken)
     console.log('refresh-token newRefreshToken', newRefreshToken)
     res.status(200)
-        .cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
+        .cookie('refreshToken', newRefreshToken.refreshToken, {httpOnly: true, secure: true})
         .send(newAccessToken)
     return
 })
@@ -103,16 +104,16 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     if (!refreshToken) return res.sendStatus(401)
     console.log('logout refreshToken', refreshToken)
 
-    const expiredOrNot=await jwtService.getUserIdByToken(refreshToken.refreshToken)
+    const expiredOrNot=await jwtService.getUserIdByToken(refreshToken)
     console.log('logout expiredOrNot', expiredOrNot)
     if(!expiredOrNot)return res.sendStatus(401)
 
-    const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken.refreshToken)
+    const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
     console.log('logout isExpiredToken', isExpiredToken)
     if(isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
 
-    await jwtTokensService.expiredTokens(refreshToken.refreshToken)
-    return res.sendStatus(204)
+    await jwtTokensService.expiredTokens(refreshToken)
+    return res.clearCookie('refreshToken').sendStatus(204)
 })
 type PostRequestType<B> = Request<{}, {}, B, {}>
 type BodyTypeRegistration = {
