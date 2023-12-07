@@ -121,6 +121,10 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const payload = await jwtService.getPayloadByToken(refreshToken)
     if (!payload) return res.sendStatus(401)
     const {userId, deviceId} = payload;
+    const getSessionByUserIdAndDeviceId = await sessionService.getSessionByUserIdAndDeviceId(userId, deviceId)
+    if (!getSessionByUserIdAndDeviceId) return res.sendStatus(401)
+    if (payload.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime()) return res.sendStatus(401)
+
     // const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
     // if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
     const newAccessToken = await jwtService.createAccessJWT(userId)
@@ -147,8 +151,8 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     //const date=new Date(expiredOrNot.iat * 1000).toISOString()
     //console.log('date logout',date)
     //console.log('date logout',new Date(date)!==new Date(getSessionByUserIdAndDeviceId.issuedAt))
-    console.log('new Date(expiredOrNot.iat) == new Date(getSessionByUserIdAndDeviceId.issuedAt)',  expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime(), expiredOrNot.iat*1000, new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime())
-    console.log('getSessionByUserIdAndDeviceId.issuedAt',getSessionByUserIdAndDeviceId.issuedAt)
+    //console.log('new Date(expiredOrNot.iat) == new Date(getSessionByUserIdAndDeviceId.issuedAt)',  expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime(), expiredOrNot.iat*1000, new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime())
+   // console.log('getSessionByUserIdAndDeviceId.issuedAt',getSessionByUserIdAndDeviceId.issuedAt)
     if (expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime()) return res.sendStatus(401)
     //const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
     //if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
