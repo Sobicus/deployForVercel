@@ -13,7 +13,7 @@ blogsRouter.get('/', async (req: Request<{}, {}, {}, IQuery<SortBlogsByEnum>>, r
     const blogs = await blogsService.findAllBlogs(pagination)
     res.status(200).send(blogs)
 })
-blogsRouter.get('/:id/', async (req: RequestWithParams<{ id: string }>, res: Response) => {
+blogsRouter.get('/:id', async (req: RequestWithParams<{ id: string }>, res: Response) => {
     const blog = await blogsService.findBlogById(req.params.id)
 
     if (!blog) {

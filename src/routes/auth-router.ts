@@ -7,7 +7,10 @@ import {validationAuthLoginMiddleware} from "../midlewares/input-auth-validation
 import {validationUsersMiddleware} from "../midlewares/input-user-validation-middleware";
 import {body} from "express-validator";
 import {inputVal} from "../midlewares/errorValidator";
-import { jwtTokensService } from "../domain/jwt-tokens-service";
+import {jwtTokensService} from "../domain/jwt-tokens-service";
+import {randomUUID} from "crypto";
+import jwt from 'jsonwebtoken'
+import {sessionService} from "../domain/session-service";
 
 export const authRouter = Router()
 
@@ -17,10 +20,43 @@ authRouter.post('/login', validationAuthLoginMiddleware, async (req: PostRequest
         res.sendStatus(401)
         return
     }
+    const deviceId = randomUUID()
     const accessToken = await jwtService.createAccessJWT(user.id!) // Change hardcode
-    const refreshToken = await jwtService.createRefreshJWT(user.id!) // Change hardcode
+    const refreshToken = await jwtService.createRefreshJWT(user.id!, deviceId) // Change hardcode
+
+    //------------------test------------------
     console.log('accessToken', accessToken)
     console.log('refreshToken', refreshToken)
+    console.log('atob jwt', atob(accessToken.accessToken.split('.')[1]))
+    console.log('atob jwt', atob(refreshToken.refreshToken.split('.')[1]))
+    console.log('encode', Buffer.from(refreshToken.refreshToken.split('.')[1], 'base64').toString('utf-8'))
+    console.log('encode', Buffer.from(refreshToken.refreshToken.split('.')[0], 'base64').toString('utf-8'))
+    // const {userId, iat, exp} = Buffer.from(refreshToken.refreshToken.split('.')[1], 'base64').toString('utf-8')
+    // console.log('test1', userId)
+    // console.log('test2', iat)
+    // console.log('test3', exp)
+    console.log('jwt', jwt.decode(accessToken.accessToken))
+    const decodeJwtAccessToken = jwt.decode(accessToken.accessToken)
+    console.log('decodeJwtAccessToken', decodeJwtAccessToken)
+
+    console.log('req.baseUrl', req.baseUrl)
+    console.log('req.originalUrl', req.originalUrl)
+    const decodeJwt = jwt.decode(accessToken.accessToken)
+
+    const {userId, iat}: any = jwt.decode(accessToken.accessToken)
+    console.log('userId iat', userId, iat)
+    console.log('userId iat', userId, iat)
+    console.log('deviceId', randomUUID())
+    console.log('ip', req.socket.remoteAddress)
+    console.log('deviceName', req.headers['user-agent'])
+    console.log('userId', user.id)
+
+    //-----------------------------------------
+    const ip = req.socket.remoteAddress//what we do with ip becouse ts think that ip can be undefined
+    const deviceName = req.headers['user-agent']//what we do with deviceName becouse ts think that deviceName can be undefined
+    const addDeviceSession = await sessionService.createDeviceSession(refreshToken.refreshToken, ip!, deviceName!)
+    if (!addDeviceSession) return res.sendStatus(401)
+    //------------above new logic------------------
     res.status(200)
         .cookie('refreshToken', refreshToken.refreshToken, {httpOnly: true, secure: true})
         .send(accessToken)
@@ -82,18 +118,16 @@ authRouter.post('/registration-email-resending', body('email')
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const refreshToken: string = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401)
-    const userId = await jwtService.getUserIdByToken(refreshToken)
-    console.log("userId in token",userId)
-    if(!userId) return res.sendStatus(401)
-    const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
-    console.log(isExpiredToken)
-    if(isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
-
+    const payload = await jwtService.getPayloadByToken(refreshToken)
+    if (!payload) return res.sendStatus(401)
+    const {userId, deviceId} = payload;
+    // const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
+    // if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
     const newAccessToken = await jwtService.createAccessJWT(userId)
-    const newRefreshToken = await jwtService.createRefreshJWT(userId)
-    await jwtTokensService.expiredTokens(refreshToken)//do need something check?
-    console.log('refresh-token newAccessToken', newAccessToken)
-    console.log('refresh-token newRefreshToken', newRefreshToken)
+    const newRefreshToken = await jwtService.createRefreshJWT(userId, deviceId)
+    // await jwtTokensService.expiredTokens(refreshToken)//do need something check?
+    const result=await sessionService.updateSession(newRefreshToken.refreshToken)
+    if(result)return res.sendStatus(401)
     res.status(200)
         .cookie('refreshToken', newRefreshToken.refreshToken, {httpOnly: true, secure: true})
         .send(newAccessToken)
@@ -102,17 +136,16 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 authRouter.post('/logout', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401)
-    console.log('logout refreshToken', refreshToken)
 
-    const expiredOrNot=await jwtService.getUserIdByToken(refreshToken)
-    console.log('logout expiredOrNot', expiredOrNot)
-    if(!expiredOrNot)return res.sendStatus(401)
+    const expiredOrNot = await jwtService.getPayloadByToken(refreshToken)
+    if (!expiredOrNot) return res.sendStatus(401)
+    const {userId, deviceId} = expiredOrNot;
+    //const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
+    //if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
 
-    const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
-    console.log('logout isExpiredToken', isExpiredToken)
-    if(isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
-
-    await jwtTokensService.expiredTokens(refreshToken)
+    //await jwtTokensService.expiredTokens(refreshToken)
+    const result = await sessionService.deleteSessionDevice(userId,deviceId)
+    if(result)return res.sendStatus(401)
     return res.clearCookie('refreshToken').sendStatus(204)
 })
 type PostRequestType<B> = Request<{}, {}, B, {}>
