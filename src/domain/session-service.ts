@@ -44,6 +44,9 @@ class SessionService {
     async getDeviceByDeviceId(deviceId:string):Promise<allActiveSessionDbType|null>{
         return await this.sessionsRepo.getDeviceByDeviceId(deviceId)
     }
+    async getSessionByUserIdAndDeviceId(userId:string,deviceId:string){
+        return await this.sessionsRepo.getSessionByUserIdAndDeviceId(userId,deviceId)
+    }
 }
 
 export const sessionService = new SessionService()

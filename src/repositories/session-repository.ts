@@ -63,6 +63,13 @@ export class SessionRepository {
             userId: deviceByDeviceId.userId
         }
     }
+    async getSessionByUserIdAndDeviceId(userId:string,deviceId:string){
+        const result = client.db(dataBaseName)
+            .collection('sessions')
+            .findOne({userId, deviceId})
+        return result
+    }
+
 }
 
 export type allActiveSessionDbType = {
