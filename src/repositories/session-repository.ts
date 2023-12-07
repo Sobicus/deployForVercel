@@ -5,7 +5,8 @@ export class SessionRepository {
     async createDeviceSession(issuedAt: string, deviceId: string, ip: string, deviceName: string, userId: string): Promise<boolean> {
         const newSession = {issuedAt, deviceId, ip, deviceName, userId}
         const result = await client.db(dataBaseName)
-            .collection<allActiveSessionDbType>('sessions').insertOne({_id: new ObjectId(), ...newSession})
+            .collection<allActiveSessionDbType>('sessions')
+            .insertOne({_id: new ObjectId(), ...newSession})
         console.log('result.acknowledged', result.acknowledged)
         console.log('newSession', newSession)
         return result.acknowledged

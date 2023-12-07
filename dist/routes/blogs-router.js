@@ -22,7 +22,7 @@ exports.blogsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, fun
     const blogs = yield blogs_service_1.blogsService.findAllBlogs(pagination);
     res.status(200).send(blogs);
 }));
-exports.blogsRouter.get('/:id/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blog = yield blogs_service_1.blogsService.findBlogById(req.params.id);
     if (!blog) {
         res.sendStatus(404);

@@ -16,6 +16,7 @@ class SessionService {
         const iat: number = decodeJwtRefreshToken['iat']
         const issuedAt = new Date(iat * 1000).toISOString()
         // const deviceId = randomUUID()
+        console.log('issuedAt session-service',issuedAt)
         return this.sessionsRepo.createDeviceSession(issuedAt, deviceId, ip, deviceName, userId)
     }
 
