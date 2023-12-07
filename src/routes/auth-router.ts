@@ -146,14 +146,23 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     const {userId, deviceId} = expiredOrNot;
     const getSessionByUserIdAndDeviceId = await sessionService.getSessionByUserIdAndDeviceId(userId, deviceId)
     if (!getSessionByUserIdAndDeviceId) return res.sendStatus(401)
-    //console.log('expiredOrNot logout',expiredOrNot.iat)
-    // console.log('getSessionByUserIdAndDeviceId.issuedAt logout',getSessionByUserIdAndDeviceId.issuedAt)
-    //const date=new Date(expiredOrNot.iat * 1000).toISOString()
-    //console.log('date logout',date)
-    //console.log('date logout',new Date(date)!==new Date(getSessionByUserIdAndDeviceId.issuedAt))
-    //console.log('new Date(expiredOrNot.iat) == new Date(getSessionByUserIdAndDeviceId.issuedAt)',  expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime(), expiredOrNot.iat*1000, new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime())
+   //  console.log('expiredOrNot logout',expiredOrNot.iat)
+   //  console.log('getSessionByUserIdAndDeviceId.issuedAt logout',getSessionByUserIdAndDeviceId.issuedAt)
+   //  const date=new Date(expiredOrNot.iat * 1000).toISOString()
+   //  console.log('date logout',date)
+   //  console.log('date logout',new Date(date)!==new Date(getSessionByUserIdAndDeviceId.issuedAt))
+   //  console.log('new Date(expiredOrNot.iat) == new Date(getSessionByUserIdAndDeviceId.issuedAt)',  expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime(), expiredOrNot.iat*1000, new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime())
    // console.log('getSessionByUserIdAndDeviceId.issuedAt',getSessionByUserIdAndDeviceId.issuedAt)
-    if (expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime()) return res.sendStatus(401)
+
+
+    // if (expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime()) return res.sendStatus(401)
+    console.log('new Date(expiredOrNot.iat*1000).toISOString()',new Date(expiredOrNot.iat*1000).toISOString())
+    console.log('getSessionByUserIdAndDeviceId.issuedAt',getSessionByUserIdAndDeviceId.issuedAt)
+    console.log('new Date(expiredOrNot.iat*1000).toISOString() !== getSessionByUserIdAndDeviceId.issuedAt',new Date(expiredOrNot.iat*1000).toISOString() !== getSessionByUserIdAndDeviceId.issuedAt)
+
+    if (new Date(expiredOrNot.iat*1000).toISOString() !== getSessionByUserIdAndDeviceId.issuedAt) return res.sendStatus(401)
+
+
     //const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
     //if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
 
