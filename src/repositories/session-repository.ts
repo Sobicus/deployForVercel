@@ -29,7 +29,7 @@ export class SessionRepository {
     async updateSession(deviceId: string, issuedAt: string): Promise<boolean> {
         const result = await client.db(dataBaseName)
             .collection<allActiveSessionDbType>('sessions')
-            .updateOne({deviceId, issuedAt}, {$set: {issuedAt}})
+            .updateOne({deviceId}, {$set: {issuedAt}})
         return result.acknowledged
     }
 
