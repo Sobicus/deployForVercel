@@ -126,8 +126,8 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const newAccessToken = await jwtService.createAccessJWT(userId)
     const newRefreshToken = await jwtService.createRefreshJWT(userId, deviceId)
     // await jwtTokensService.expiredTokens(refreshToken)//do need something check?
-    const result=await sessionService.updateSession(newRefreshToken.refreshToken)
-    if(result)return res.sendStatus(401)
+    const result = await sessionService.updateSession(newRefreshToken.refreshToken)
+    if (!result) return res.sendStatus(401)
     res.status(200)
         .cookie('refreshToken', newRefreshToken.refreshToken, {httpOnly: true, secure: true})
         .send(newAccessToken)
@@ -144,8 +144,8 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     //if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
 
     //await jwtTokensService.expiredTokens(refreshToken)
-    const result = await sessionService.deleteSessionDevice(userId,deviceId)
-    if(result)return res.sendStatus(401)
+    const result = await sessionService.deleteSessionDevice(userId, deviceId)
+    if (result) return res.sendStatus(401)
     return res.clearCookie('refreshToken').sendStatus(204)
 })
 type PostRequestType<B> = Request<{}, {}, B, {}>
