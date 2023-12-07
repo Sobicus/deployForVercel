@@ -135,19 +135,27 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 })
 authRouter.post('/logout', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
+    console.log('logout refreshToken', refreshToken)
     if (!refreshToken) return res.sendStatus(401)
     const expiredOrNot = await jwtService.getPayloadByToken(refreshToken)
     if (!expiredOrNot) return res.sendStatus(401)
     const {userId, deviceId} = expiredOrNot;
     const getSessionByUserIdAndDeviceId = await sessionService.getSessionByUserIdAndDeviceId(userId, deviceId)
     if (!getSessionByUserIdAndDeviceId) return res.sendStatus(401)
-    if (expiredOrNot.iat !== getSessionByUserIdAndDeviceId.issuedAt)return  res.sendStatus(401)
-        //const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
-        //if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
+    //console.log('expiredOrNot logout',expiredOrNot.iat)
+    // console.log('getSessionByUserIdAndDeviceId.issuedAt logout',getSessionByUserIdAndDeviceId.issuedAt)
+    //const date=new Date(expiredOrNot.iat * 1000).toISOString()
+    //console.log('date logout',date)
+    //console.log('date logout',new Date(date)!==new Date(getSessionByUserIdAndDeviceId.issuedAt))
+    console.log('new Date(expiredOrNot.iat) == new Date(getSessionByUserIdAndDeviceId.issuedAt)',  expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime(), expiredOrNot.iat*1000, new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime())
+    console.log('getSessionByUserIdAndDeviceId.issuedAt',getSessionByUserIdAndDeviceId.issuedAt)
+    if (expiredOrNot.iat*1000 !== new Date(getSessionByUserIdAndDeviceId.issuedAt).getTime()) return res.sendStatus(401)
+    //const isExpiredToken = await jwtTokensService.isExpiredToken(refreshToken)
+    //if (isExpiredToken) return res.sendStatus(401)// check need i this verification or this redundant
 
-        //await jwtTokensService.expiredTokens(refreshToken)
-        const result = await sessionService.deleteSessionDevice(userId, deviceId)
-    if (result) return res.sendStatus(401)
+    //await jwtTokensService.expiredTokens(refreshToken)
+    const result = await sessionService.deleteSessionDevice(userId, deviceId)
+    if (!result) return res.sendStatus(401)
     return res.clearCookie('refreshToken').sendStatus(204)
 })
 type PostRequestType<B> = Request<{}, {}, B, {}>
