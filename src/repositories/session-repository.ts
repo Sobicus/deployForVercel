@@ -48,9 +48,24 @@ export class SessionRepository {
             .deleteOne({userId, deviceId})
         return result.acknowledged
     }
+
+    async getDeviceByDeviceId(deviceId: string): Promise<allActiveSessionDbType | null> {
+        const deviceByDeviceId = await client.db(dataBaseName)
+            .collection<allActiveSessionDbType>('sessions')
+            .findOne({deviceId})
+        if(!deviceByDeviceId)return null
+        return {
+            _id: deviceByDeviceId._id,
+            issuedAt: deviceByDeviceId.issuedAt,
+            deviceId: deviceByDeviceId.deviceId,
+            ip: deviceByDeviceId.ip,
+            deviceName: deviceByDeviceId.deviceName,
+            userId: deviceByDeviceId.userId
+        }
+    }
 }
 
-type allActiveSessionDbType = {
+export type allActiveSessionDbType = {
     _id: ObjectId
     issuedAt: string // = iat
     deviceId: string

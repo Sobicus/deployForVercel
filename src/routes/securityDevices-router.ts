@@ -22,17 +22,19 @@ securityDevicesRouter.delete('/', async (req: Request, res: Response) => {
     if (result) return res.sendStatus(401)
     return res.sendStatus(204)
 })
-securityDevicesRouter.delete('/:deviceId', async (req: RequestParamsType<{deviceId:string}>, res: Response) => {
-   const deviceIdWithParams = req.params.deviceId
-    if(!deviceIdWithParams)return res.sendStatus(401)
+securityDevicesRouter.delete('/:deviceId', async (req: RequestParamsType<{ deviceId: string }>, res: Response) => {
+    const deviceIdWithParams = req.params.deviceId
+    if (!deviceIdWithParams) return res.sendStatus(404)
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401)
     const expiredOrNot = await jwtService.getPayloadByToken(refreshToken)
     if (!expiredOrNot) return res.sendStatus(401)
-    const {userId, deviceId} = expiredOrNot
-    if(deviceIdWithParams!==deviceId)return res.sendStatus(403)
-    const result = await sessionService.deleteSessionDevice(userId, deviceId)
+    const {userId} = expiredOrNot
+    const receiveDeviceByDeviceId = await sessionService.getDeviceByDeviceId(deviceIdWithParams)
+    if(!receiveDeviceByDeviceId)return res.sendStatus(404)
+    if(userId!==receiveDeviceByDeviceId.userId)return res.sendStatus(403)
+    const result = await sessionService.deleteSessionDevice(userId, deviceIdWithParams)
     if (result) return res.sendStatus(401)
     return res.sendStatus(204)
 })
-type RequestParamsType<P>= Request<P,{},{},{}>
+type RequestParamsType<P> = Request<P, {}, {}, {}>

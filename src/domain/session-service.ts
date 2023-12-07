@@ -1,4 +1,4 @@
-import {allActiveSessionViewType, SessionRepository} from "../repositories/session-repository";
+import {allActiveSessionDbType, allActiveSessionViewType, SessionRepository} from "../repositories/session-repository";
 import jwt from "jsonwebtoken";
 
 class SessionService {
@@ -40,6 +40,9 @@ class SessionService {
 
     async deleteDevicesExceptThis(userId: string, deviceId: string): Promise<boolean> {
         return await this.sessionsRepo.deleteDevicesExceptThis(userId, deviceId)
+    }
+    async getDeviceByDeviceId(deviceId:string):Promise<allActiveSessionDbType|null>{
+        return await this.sessionsRepo.getDeviceByDeviceId(deviceId)
     }
 }
 
