@@ -14,7 +14,7 @@ import {rateLimitMiddleware} from "../domain/rate-limit-middleware";
 
 export const authRouter = Router()
 
-authRouter.post('/login', rateLimitMiddleware, validationAuthLoginMiddleware, async (req: PostRequestType<BodyTypeRegistration>, res: Response) => {
+authRouter.post('/login', rateLimitMiddleware,rateLimitMiddleware, validationAuthLoginMiddleware, async (req: PostRequestType<BodyTypeRegistration>, res: Response) => {
     const user = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!user) {
         res.sendStatus(401)
@@ -72,7 +72,7 @@ authRouter.get('/me', authMiddleware, async (req: Request, res: Response) => {
         userId: userData.id
     })
 })
-authRouter.post('/registration', validationUsersMiddleware, async (req: PostRequestType<PostRequestRegistrationType>, res: Response) => {
+authRouter.post('/registration',rateLimitMiddleware, validationUsersMiddleware, async (req: PostRequestType<PostRequestRegistrationType>, res: Response) => {
         //await userService.createUser(req.body.login, req.body.password, req.body.email)
         const newUser = await authService.createUser(req.body.login, req.body.password, req.body.email)
         if (!newUser) {
@@ -81,7 +81,7 @@ authRouter.post('/registration', validationUsersMiddleware, async (req: PostRequ
         return res.sendStatus(204)
     }
 )
-authRouter.post('/registration-confirmation', body('code')
+authRouter.post('/registration-confirmation',rateLimitMiddleware, body('code')
     .custom(async (code) => {
         const checkUser = await userService.findUserByConfirmationCode(code)
         if (checkUser?.emailConfirmation.isConfirmed === true) throw new Error(' already exist by email')
@@ -102,7 +102,7 @@ authRouter.post('/registration-confirmation', body('code')
     }
     return res.sendStatus(204)
 })
-authRouter.post('/registration-email-resending', body('email')
+authRouter.post('/registration-email-resending',rateLimitMiddleware, body('email')
     .isString().withMessage('Email not a string')
     .trim().notEmpty().withMessage('Email can`t be empty and cannot consist of only spaces')
     .matches('^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$').withMessage('Email must be include type like forexample@gmail.com')
