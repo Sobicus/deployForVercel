@@ -14,7 +14,7 @@ import {rateLimitMiddleware} from "../domain/rate-limit-middleware";
 
 export const authRouter = Router()
 
-authRouter.post('/login', rateLimitMiddleware,rateLimitMiddleware, validationAuthLoginMiddleware, async (req: PostRequestType<BodyTypeRegistration>, res: Response) => {
+authRouter.post('/login', rateLimitMiddleware, validationAuthLoginMiddleware, async (req: PostRequestType<BodyTypeRegistration>, res: Response) => {
     const user = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!user) {
         res.sendStatus(401)

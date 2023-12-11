@@ -13,7 +13,7 @@ export class RateLimitRepository {
     async getAllRateSessionsTimeRange(ip: string, path: string, requestDate: number): Promise<number> {
         const result = await client.db(dataBaseName)
             .collection<RateSessionsDBType>('rateSessions')
-            .countDocuments({date: {$gte: requestDate},  ip, path})
+            .countDocuments({date: {$gte: Date.now() - 10000},  ip, path})
 
         return result
     }

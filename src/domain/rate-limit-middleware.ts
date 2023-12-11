@@ -7,6 +7,7 @@ export const rateLimitMiddleware = async (req: Request, res: Response, next: Nex
     // console.log('originalUrl', req.originalUrl)
 
     const path = req.originalUrl.split('?')[0]
+    console.log('path', path)
     const createDate = new Date().getTime()
     const ip = req.socket.remoteAddress || 'Anonimus'
     await rateLimitService.createNewRateSession(ip, path, createDate)
