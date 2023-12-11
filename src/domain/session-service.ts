@@ -20,8 +20,8 @@ class SessionService {
         return this.sessionsRepo.createDeviceSession(issuedAt, deviceId, ip, deviceName, userId)
     }
 
-    async getAllDeviceSessions(): Promise<allActiveSessionViewType[]> {
-        return this.sessionsRepo.getAllActiveSessions()
+    async getAllDeviceSessions(userId:string): Promise<allActiveSessionViewType[]> {
+        return this.sessionsRepo.getAllActiveSessions(userId)
     }
 
     async updateSession(refreshToken: string): Promise<boolean> {

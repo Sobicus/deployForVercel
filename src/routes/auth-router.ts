@@ -7,14 +7,14 @@ import {validationAuthLoginMiddleware} from "../midlewares/input-auth-validation
 import {validationUsersMiddleware} from "../midlewares/input-user-validation-middleware";
 import {body} from "express-validator";
 import {inputVal} from "../midlewares/errorValidator";
-import {jwtTokensService} from "../domain/jwt-tokens-service";
 import {randomUUID} from "crypto";
 import jwt from 'jsonwebtoken'
 import {sessionService} from "../domain/session-service";
+import {rateLimitMiddleware} from "../domain/rate-limit-middleware";
 
 export const authRouter = Router()
 
-authRouter.post('/login', validationAuthLoginMiddleware, async (req: PostRequestType<BodyTypeRegistration>, res: Response) => {
+authRouter.post('/login', rateLimitMiddleware, validationAuthLoginMiddleware, async (req: PostRequestType<BodyTypeRegistration>, res: Response) => {
     const user = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!user) {
         res.sendStatus(401)

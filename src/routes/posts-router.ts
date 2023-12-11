@@ -1,4 +1,4 @@
-import {Response, Request, Router} from "express";
+import {Response, Request, Router, NextFunction} from "express";
 import {checkAuthorization} from "../midlewares/authorization-check-middleware";
 import {validationPostsMiddleware} from "../midlewares/input-posts-validation-middleware";
 import {postService} from "../domain/posts-service";
@@ -24,6 +24,7 @@ postsRouter.get('/:id', async (req: RequestWithParams<{ id: string }>, res: Resp
     }
     return res.status(200).send(post);
 })
+
 postsRouter.post('/', checkAuthorization, ...validationPostsMiddleware, async (req: postRequestWithBody<postBodyRequest>, res: Response) => {
     let {title, shortDescription, content, blogId} = req.body
     const newPost = await postService.createPost(title, shortDescription, content, blogId)

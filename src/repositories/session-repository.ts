@@ -12,9 +12,9 @@ export class SessionRepository {
         return result.acknowledged
     }
 
-    async getAllActiveSessions(): Promise<allActiveSessionViewType[]> {
+    async getAllActiveSessions(userId:string): Promise<allActiveSessionViewType[]> {
         const sessins = await client.db(dataBaseName)
-            .collection<allActiveSessionDbType>('sessions').find({}).toArray()
+            .collection<allActiveSessionDbType>('sessions').find({userId}).toArray()
         const allActiveSessInDb = sessins.map(s => {
             return {
                 ip: s.ip,
@@ -29,7 +29,7 @@ export class SessionRepository {
     async updateSession(deviceId: string, issuedAt: string): Promise<boolean> {
         const result = await client.db(dataBaseName)
             .collection<allActiveSessionDbType>('sessions')
-            .updateOne({deviceId}, {$set: {issuedAt}})
+            .updateOne({deviceId}, {$set: {issuedAt}})//?????
         return result.acknowledged
     }
 
