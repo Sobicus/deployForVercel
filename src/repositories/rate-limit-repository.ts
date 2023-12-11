@@ -6,13 +6,14 @@ export class RateLimitRepository {
         const result = await client.db(dataBaseName)
             .collection<RateSessionsDBType>('rateSessions')
             .insertOne({_id: new ObjectId(), ip, path, date})
+        console.log('repo', result.acknowledged)
         return result.acknowledged
     }
 
-    async getAllRateSessionsTimeRange(createDate: number, requestDate: number): Promise<number> {
+    async getAllRateSessionsTimeRange(ip: string, path: string, requestDate: number): Promise<number> {
         const result = await client.db(dataBaseName)
             .collection<RateSessionsDBType>('rateSessions')
-            .countDocuments({date: {$gte: createDate, $lte: requestDate}})
+            .countDocuments({date: {$gte: requestDate},  ip, path})
 
         return result
     }

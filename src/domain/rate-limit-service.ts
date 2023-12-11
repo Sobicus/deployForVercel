@@ -11,8 +11,8 @@ class RateLimitService {
         return await this.reteLimitRepo.createNewRateSession(ip, path, date)
     }
 
-    async getAllRateSessionsTimeRange(createDate: number, requestDate: number): Promise<number>  {
-        return await this.reteLimitRepo.getAllRateSessionsTimeRange(createDate, requestDate)
+    async getAllRateSessionsTimeRange(ip: string, path: string, requestDate: number): Promise<number>  {
+        return await this.reteLimitRepo.getAllRateSessionsTimeRange(ip,path, requestDate)
     }
 
 }
