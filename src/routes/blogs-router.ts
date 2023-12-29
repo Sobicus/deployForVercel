@@ -9,7 +9,6 @@ import {IQuery, SortBlogsByEnum} from "../types/paggination-type";
 export const blogsRouter = Router()
 blogsRouter.get('/', async (req: Request<{}, {}, {}, IQuery<SortBlogsByEnum>>, res: Response) => {
     const pagination = getBlogsPagination(req.query)
-
     const blogs = await blogsService.findAllBlogs(pagination)
     res.status(200).send(blogs)
 })
@@ -34,14 +33,16 @@ blogsRouter.get('/:id/posts', async (req: RequestWithParamsAmdQuery<{
     }
     res.status(200).send(posts)
 })
-blogsRouter.post('/:id/posts', checkAuthorization, ...validationPostsByBlogIdMidleware, async (req: RequestChangeBlog<{id: string}, postByBlogIdBodyRequest>, res: Response) => {
-        const blogId = req.params.id
-        const {title, shortDescription, content} = req.body
-        const post = await blogsService.createPostByBlogId(title, shortDescription, content, blogId)
-        //const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
-        if (!post) return res.sendStatus(404)
-        return res.status(201).send(post)
-    })
+blogsRouter.post('/:id/posts', checkAuthorization, ...validationPostsByBlogIdMidleware, async (req: RequestChangeBlog<{
+    id: string
+}, postByBlogIdBodyRequest>, res: Response) => {
+    const blogId = req.params.id
+    const {title, shortDescription, content} = req.body
+    const post = await blogsService.createPostByBlogId(title, shortDescription, content, blogId)
+    //const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
+    if (!post) return res.sendStatus(404)
+    return res.status(201).send(post)
+})
 blogsRouter.post('/', checkAuthorization, ...validationBlogsMiddleware,
     async (req: postRequestWithBody<blogBodyRequest>, res: Response) => {
         const {name, description, websiteUrl} = req.body

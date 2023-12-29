@@ -1,5 +1,7 @@
 import { app } from './app'
 import {runDb} from "./repositories/db";
+import dotenv from 'dotenv'
+dotenv.config()
 /*
 process.on('uncaughtException',(error)=>{
     console.log(error)})

@@ -1,7 +1,8 @@
-import {BlogsRepository, BlogViewType} from "../repositories/blogs-repository";
+import {BlogsRepository, blogsRepositoryType, BlogViewType} from "../repositories/blogs-repository";
 import {blogBodyRequest} from "../routes/blogs-router";
 import {IBlockPagination, IQuery, PaginationType, SortBlogsByEnum} from "../types/paggination-type";
 import {postsViewType} from "../repositories/posts-repository";
+
 
 class BlogsService {
     blogRepo: BlogsRepository
@@ -45,3 +46,5 @@ class BlogsService {
 }
 
 export const blogsService = new BlogsService();
+
+
