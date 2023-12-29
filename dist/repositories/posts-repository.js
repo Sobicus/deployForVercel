@@ -10,20 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsRepository = void 0;
-const db_1 = require("./db");
 const mongodb_1 = require("mongodb");
+const db_1 = require("./db");
 class PostsRepository {
     findAllPosts(postsPagination) {
         return __awaiter(this, void 0, void 0, function* () {
-            const posts = yield db_1.client.db(db_1.dataBaseName)
-                .collection('posts')
+            const posts = yield db_1.PostsModel
                 .find({})
                 .sort({ [postsPagination.sortBy]: postsPagination.sortDirection })
                 .limit(postsPagination.pageSize)
                 .skip(postsPagination.skip)
-                .toArray();
-            const totalCount = yield db_1.client.db(db_1.dataBaseName)
-                .collection('posts')
+                .lean();
+            const totalCount = yield db_1.PostsModel
                 .countDocuments();
             const pagesCount = Math.ceil(totalCount / postsPagination.pageSize);
             const allPosts = posts.map(p => ({
@@ -46,7 +44,8 @@ class PostsRepository {
     }
     findPostById(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            let post = yield db_1.client.db(db_1.dataBaseName).collection('posts').findOne({ _id: new mongodb_1.ObjectId(postId) });
+            let post = yield db_1.PostsModel
+                .findOne({ _id: new mongodb_1.ObjectId(postId) });
             if (!post) {
                 return null;
             }
@@ -63,31 +62,27 @@ class PostsRepository {
     }
     createPost(newPost) {
         return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
+            let blog = yield db_1.BlogsModel
                 .findOne({ _id: new mongodb_1.ObjectId(newPost.blogId) });
             if (!blog)
                 return null;
-            let newPostByDb = yield db_1.client.db(db_1.dataBaseName)
-                .collection('posts')
-                .insertOne(Object.assign(Object.assign({}, newPost), { blogName: blog.name, _id: new mongodb_1.ObjectId() }));
+            let newPostByDb = yield db_1.PostsModel
+                .create(Object.assign(Object.assign({}, newPost), { blogName: blog.name, _id: new mongodb_1.ObjectId() }));
             const blogName = blog.name;
-            const postId = newPostByDb.insertedId.toString();
+            const postId = newPostByDb._id.toString();
             return { blogName, postId };
         });
     }
     updatePost(postId, updateModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName)
-                .collection('posts')
+            const resultUpdateModel = yield db_1.PostsModel
                 .updateOne({ _id: new mongodb_1.ObjectId(postId) }, { $set: updateModel });
             return resultUpdateModel.matchedCount === 1;
         });
     }
     deletePost(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultDeletePost = yield db_1.client.db(db_1.dataBaseName)
-                .collection('posts')
+            const resultDeletePost = yield db_1.PostsModel
                 .deleteOne({ _id: new mongodb_1.ObjectId(postId) });
             return resultDeletePost.deletedCount === 1;
         });
@@ -95,12 +90,11 @@ class PostsRepository {
     findCommentsByPostId(postId, paggination) {
         return __awaiter(this, void 0, void 0, function* () {
             // const paggination = getCommentsPagination(query)
-            const commets = yield db_1.client.db(db_1.dataBaseName)
-                .collection('comments')
+            const commets = yield db_1.CommentsModel
                 .find({ postId: postId })
                 .sort({ [paggination.sortBy]: paggination.sortDirection })
                 .limit(paggination.pageSize)
-                .skip(paggination.skip).toArray();
+                .skip(paggination.skip).lean();
             const comments = commets.map(el => ({
                 id: el._id.toString(),
                 content: el.content,
@@ -110,8 +104,7 @@ class PostsRepository {
                 },
                 createdAt: el.createdAt
             }));
-            const totalCount = yield db_1.client.db(db_1.dataBaseName)
-                .collection('comments')
+            const totalCount = yield db_1.CommentsModel
                 .countDocuments({ postId: postId });
             const pageCount = Math.ceil(totalCount / paggination.pageSize);
             return {
@@ -125,10 +118,10 @@ class PostsRepository {
     }
     createCommetByPostId(comment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const newComment = yield db_1.client.db(db_1.dataBaseName)
-                .collection('comments').insertOne(Object.assign({}, comment)); //<CommentsRepositoryType> can not
+            const newComment = yield db_1.CommentsModel
+                .create(Object.assign({}, comment)); //<CommentsRepositoryType> can not
             return {
-                id: newComment.insertedId.toString(),
+                id: newComment._id.toString(),
                 content: comment.content,
                 commentatorInfo: {
                     userLogin: comment.userLogin,

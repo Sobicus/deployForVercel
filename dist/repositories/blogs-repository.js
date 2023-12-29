@@ -10,21 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsRepository = void 0;
-const db_1 = require("./db");
 const mongodb_1 = require("mongodb");
 const posts_service_1 = require("../domain/posts-service");
 const pagination_helpers_1 = require("../helpers/pagination-helpers");
+const db_1 = require("./db");
 class BlogsRepository {
     findAllBlogs(pagination) {
         return __awaiter(this, void 0, void 0, function* () {
             const filter = { name: { $regex: pagination.searchNameTerm, $options: 'i' } };
-            const blogs = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
+            const blogs = yield db_1.BlogsModel
                 .find(filter)
                 .sort({ [pagination.sortBy]: pagination.sortDirection })
                 .limit(pagination.pageSize)
                 .skip(pagination.skip)
-                .toArray();
+                .lean();
             const allBlogs = blogs.map(b => ({
                 id: b._id.toString(),
                 name: b.name,
@@ -33,8 +32,7 @@ class BlogsRepository {
                 createdAt: b.createdAt,
                 isMembership: b.isMembership
             }));
-            const totalCount = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
+            const totalCount = yield db_1.BlogsModel
                 .countDocuments(filter);
             const pagesCount = Math.ceil(totalCount / pagination.pageSize);
             return {
@@ -48,8 +46,7 @@ class BlogsRepository {
     }
     findBlogById(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
+            let blog = yield db_1.BlogsModel
                 .findOne({ _id: new mongodb_1.ObjectId(blogId) });
             if (!blog) {
                 return null;
@@ -66,20 +63,18 @@ class BlogsRepository {
     }
     findPostByBlogId(blogId, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
+            let blog = yield db_1.BlogsModel
                 .findOne({ _id: new mongodb_1.ObjectId(blogId) });
             if (!blog) {
                 return null;
             }
             /*const blogId = blog._id.toString()*/
             const pagination = (0, pagination_helpers_1.getBlogsPagination)(query);
-            const posts = yield db_1.client.db(db_1.dataBaseName)
-                .collection('posts')
+            const posts = yield db_1.PostsModel
                 .find({ blogId: blogId })
                 .sort({ [pagination.sortBy]: pagination.sortDirection })
                 .skip(pagination.skip).limit(pagination.pageSize)
-                .toArray();
+                .lean();
             const allPosts = posts.map(p => ({
                 id: p._id.toString(),
                 title: p.title,
@@ -89,8 +84,7 @@ class BlogsRepository {
                 blogName: p.blogName,
                 createdAt: p.createdAt
             }));
-            const totalCount = yield db_1.client.db(db_1.dataBaseName)
-                .collection('posts')
+            const totalCount = yield db_1.PostsModel
                 .countDocuments({ blogId: blogId });
             const pagesCount = Math.ceil(totalCount / pagination.pageSize);
             return {
@@ -104,10 +98,10 @@ class BlogsRepository {
     }
     createBlog(createModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultNewBlog = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
-                .insertOne(createModel);
-            return resultNewBlog.insertedId.toString();
+            const resultNewBlog = yield db_1.BlogsModel
+                .create(createModel);
+            return resultNewBlog._id.toString();
+            //.insertedId.toString()
         });
     }
     createPostByBlogId(title, shortDescription, content, blogId) {
@@ -120,16 +114,14 @@ class BlogsRepository {
     }
     updateBlog(blogId, updateModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultUpdateModel = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
+            const resultUpdateModel = yield db_1.BlogsModel
                 .updateOne({ _id: new mongodb_1.ObjectId(blogId) }, { $set: updateModel });
             return resultUpdateModel.matchedCount === 1;
         });
     }
     deleteBlog(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const resultDeleteBlog = yield db_1.client.db(db_1.dataBaseName)
-                .collection('blogs')
+            const resultDeleteBlog = yield db_1.BlogsModel
                 .deleteOne({ _id: new mongodb_1.ObjectId(blogId) });
             return resultDeleteBlog.deletedCount === 1;
         });
