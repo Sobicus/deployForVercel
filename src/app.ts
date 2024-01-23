@@ -33,7 +33,7 @@ app.use('/security/devices', securityDevicesRouter)
 
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('This first page if we connect to localhost:3000')
+    res.send('This test page and we connect to localhost:3000')
 })
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await BlogsModel.deleteMany({})
