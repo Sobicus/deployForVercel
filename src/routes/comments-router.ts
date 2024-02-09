@@ -40,7 +40,7 @@ commentsRouter.put('/:id', authMiddleware, validationCommentsContentMiddleware, 
     }
     res.sendStatus(204)
 })
-commentsRouter.put(':id/like-status', authMiddleware, validationComentLikeStatusMiddleware, async (req: commentsRequestParamsBody<{
+commentsRouter.put('/:id/like-status', authMiddleware, validationComentLikeStatusMiddleware, async (req: commentsRequestParamsBody<{
     id: string
 }, {
     likeStatus: LikesStatus
