@@ -5,6 +5,6 @@ export const validationComentLikeStatusMiddleware = [
     body('likeStatus')
         .isString().withMessage('likeStatus not a string')
         .trim().notEmpty().withMessage('likeStatus can`t be empty')
-        .equals('None'||'Like'||'Dislike').withMessage('likeStatus have to equals None || Like || Dislike'),
+        .isIn(['None','Like','Dislike']).withMessage('likeStatus have to equals None || Like || Dislike'),
     inputVal
 ]
