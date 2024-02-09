@@ -7,11 +7,13 @@ import {postService} from "../domain/posts-service";
 import {LikesStatus} from "../repositories/likes-commets-repository";
 import {validationComentLikeStatusMiddleware} from "../midlewares/like-status-middleware";
 import {likeCommentsService} from "../domain/like-comments-service";
+import {softAuthMiddleware} from "../midlewares/soft-auth-middleware";
 
 export const commentsRouter = Router()
 
-commentsRouter.get('/:id', async (req: commentsRequestParams<{ id: string }>, res: Response) => {
-    const comment = await commentService.getCommentById(req.params.id)
+commentsRouter.get('/:id', softAuthMiddleware, async (req: commentsRequestParams<{ id: string }>, res: Response) => {
+    const userId = req.user?.id
+    const comment = await commentService.getCommentById(req.params.id, userId)
     if (!comment) {
         res.sendStatus(404)
         return
