@@ -86,5 +86,5 @@ export type postBodyRequest = {
 }
 type postRequestComment<P, B, U extends UsersOutputType> = Request<P, {}, B, {}, U>
 type putRequestChangePost<P, B> = Request<P, {}, B, {}>
-type RequestWithParamsAndQuery<P, Q> = Request<P, {}, {}, Q>
+export type RequestWithParamsAndQuery<P, Q> = Request<P, {}, {}, Q>
 
