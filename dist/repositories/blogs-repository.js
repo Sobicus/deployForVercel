@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsRepository = void 0;
 const mongodb_1 = require("mongodb");
-const posts_service_1 = require("../domain/posts-service");
 const pagination_helpers_1 = require("../helpers/pagination-helpers");
 const db_1 = require("./db");
 class BlogsRepository {
@@ -104,14 +103,11 @@ class BlogsRepository {
             //.insertedId.toString()
         });
     }
-    createPostByBlogId(title, shortDescription, content, blogId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const createdPostByBlogId = yield posts_service_1.postService.createPost(title, shortDescription, content, blogId);
-            if (!createdPostByBlogId)
-                return null;
-            return createdPostByBlogId;
-        });
-    }
+    // async createPostByBlogId(title: string, shortDescription: string, content: string, blogId: string): Promise<postsViewType | null> {
+    //     const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
+    //     if (!createdPostByBlogId) return null
+    //     return createdPostByBlogId
+    // }
     updateBlog(blogId, updateModel) {
         return __awaiter(this, void 0, void 0, function* () {
             const resultUpdateModel = yield db_1.BlogsModel

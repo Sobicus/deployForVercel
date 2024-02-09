@@ -65,11 +65,8 @@ exports.postsRouter.post('/:id/comments', auth_middleware_1.authMiddleware, inpu
     return res.status(201).send(newComment);
 }));
 exports.postsRouter.get('/:id/comments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.query);
     const paggination = (0, pagination_comments_1.getCommentsPagination)(req.query);
-    console.log(paggination);
     const post = yield posts_service_1.postService.findPostById(req.params.id);
-    const query = req.query;
     if (!post) {
         res.sendStatus(404);
         return;

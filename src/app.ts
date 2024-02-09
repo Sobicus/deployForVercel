@@ -11,7 +11,7 @@ import {securityDevicesRouter} from "./routes/securityDevices-router";
 import {
     BlogsModel,
     CommentsModel,
-    JwtTokenModel, PasswordRecoveryModel,
+    JwtTokenModel, LikesCommentsModel, PasswordRecoveryModel,
     PostsModel,
     RateLimitModel,
     SessionsModel,
@@ -33,7 +33,7 @@ app.use('/security/devices', securityDevicesRouter)
 
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('This test page and we connect to localhost:3000')
+    res.send('This first page if we connect to localhost:3000')
 })
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await BlogsModel.deleteMany({})
@@ -44,8 +44,6 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await SessionsModel.deleteMany({})
     await UsersModel.deleteMany({})
     await PasswordRecoveryModel.deleteMany({})
-    // await client.db(dataBaseName).collection<postsViewType>('posts').deleteMany({})
-    // await client.db(dataBaseName).collection<blogsRepositoryType>('users').deleteMany({})
-    // await client.db(dataBaseName).collection<blogsRepositoryType>('sessions').deleteMany({})
+    await LikesCommentsModel.deleteMany({})
     res.sendStatus(204)
 })

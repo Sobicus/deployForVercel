@@ -4,6 +4,9 @@ import {validationCommentsContentMiddleware} from "../midlewares/input-comments-
 import {UsersOutputType} from "../repositories/users-repository";
 import {authMiddleware} from "../midlewares/auth-middleware";
 import {postService} from "../domain/posts-service";
+import {LikesStatus} from "../repositories/likes-commets-repository";
+import {validationComentLikeStatusMiddleware} from "../midlewares/like-status-middleware";
+import {likeCommentsService} from "../domain/like-comments-service";
 
 export const commentsRouter = Router()
 
@@ -37,6 +40,23 @@ commentsRouter.put('/:id', authMiddleware, validationCommentsContentMiddleware, 
     }
     res.sendStatus(204)
 })
+commentsRouter.put(':id/like-status', authMiddleware, validationComentLikeStatusMiddleware, async (req: commentsRequestParamsBody<{
+    id: string
+}, {
+    likeStatus: LikesStatus
+}>, res: Response) => {
+    const commentId = req.params.id
+    const comentsLikeStatus = req.body.likeStatus
+    const userId = req.user!.id
+    const comment = await commentService.getCommentById(commentId)
+    if (!comment) {
+        res.sendStatus(404)
+        return
+    }
+    await likeCommentsService.likeCommentUpdate(commentId, userId, comentsLikeStatus)
+    return res.sendStatus(204)
+
+})
 commentsRouter.delete('/:id', authMiddleware, async (req: commentsRequestParamsAndUser<{
     id: string
 }, UsersOutputType>, res: Response) => {
@@ -60,3 +80,4 @@ commentsRouter.delete('/:id', authMiddleware, async (req: commentsRequestParamsA
 type commentsRequestParams<P> = Request<P, {}, {}, {}>
 type commentsRequestParamsAndUser<P, U extends UsersOutputType> = Request<P, {}, {}, {}, U>
 type commentsRequestParamsAndBodyUser<P, B, U extends UsersOutputType> = Request<P, {}, B, {}, U>
+type commentsRequestParamsBody<P, B> = Request<P, {}, B, {}, {}>

@@ -12,7 +12,7 @@ class BlogsService {
     }
 
     async findAllBlogs(pagination: IBlockPagination): Promise<PaginationType<BlogViewType>> {
-        return this.blogRepo.findAllBlogs(pagination)
+        return await this.blogRepo.findAllBlogs(pagination)
     }
 
     async findBlogById(blogId: string): Promise<BlogViewType | null> {
@@ -31,9 +31,9 @@ class BlogsService {
         return {id: mongoResponse, ...createModel, createdAt, isMembership}
     }
 
-    async createPostByBlogId(title: string, shortDescription: string, content: string, blogId: string): Promise<postsViewType | null> {
-        return this.blogRepo.createPostByBlogId(title, shortDescription, content, blogId)
-    }
+    // async createPostByBlogId(title: string, shortDescription: string, content: string, blogId: string): Promise<postsViewType | null> {
+    //     return this.blogRepo.createPostByBlogId(title, shortDescription, content, blogId)
+    // }
 
     async updateBlog(blogId: string, updateModel: blogBodyRequest): Promise<boolean> {
         return await this.blogRepo.updateBlog(blogId, updateModel)

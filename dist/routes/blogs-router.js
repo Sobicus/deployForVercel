@@ -16,6 +16,7 @@ const input_blogs_validation_middleware_1 = require("../midlewares/input-blogs-v
 const blogs_service_1 = require("../domain/blogs-service");
 const pagination_helpers_1 = require("../helpers/pagination-helpers");
 const input_postsByBlogId_validation_middleware_1 = require("../midlewares/input-postsByBlogId-validation-middleware");
+const posts_service_1 = require("../domain/posts-service");
 exports.blogsRouter = (0, express_1.Router)();
 exports.blogsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helpers_1.getBlogsPagination)(req.query);
@@ -43,7 +44,7 @@ exports.blogsRouter.get('/:id/posts', (req, res) => __awaiter(void 0, void 0, vo
 exports.blogsRouter.post('/:id/posts', authorization_check_middleware_1.checkAuthorization, ...input_postsByBlogId_validation_middleware_1.validationPostsByBlogIdMidleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogId = req.params.id;
     const { title, shortDescription, content } = req.body;
-    const post = yield blogs_service_1.blogsService.createPostByBlogId(title, shortDescription, content, blogId);
+    const post = yield posts_service_1.postService.createPost(title, shortDescription, content, blogId);
     //const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
     if (!post)
         return res.sendStatus(404);

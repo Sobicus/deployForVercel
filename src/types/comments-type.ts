@@ -1,6 +1,7 @@
 import {ObjectId} from "mongodb";
+import {LikesStatus} from "../repositories/likes-commets-repository";
 
-export type CommentsViewType = {
+export type CommentViewType = {
     id: string
     content: string
     commentatorInfo: {
@@ -8,6 +9,7 @@ export type CommentsViewType = {
         userLogin: string
     }
     createdAt: string
+    likesInfo: LikesInfoType
 }
 export type CommentsRepositoryType = {
     _id: ObjectId
@@ -23,4 +25,16 @@ export type newCommentType = {
     content: string
     userId: string
     userLogin: string
+}
+type LikesInfoType={
+    likesCount: number
+    dislikesCount: number
+    myStatus: LikesStatus
+}
+export type CommentsViewType = {
+    pagesCount: number
+    page: number
+    pageSize: number
+    totalCount: number
+    items: Array<CommentViewType>
 }
