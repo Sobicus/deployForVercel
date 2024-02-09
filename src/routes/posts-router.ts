@@ -72,7 +72,7 @@ postsRouter.get('/:id/comments', softAuthMiddleware, async (req: RequestWithPara
         res.sendStatus(404)
         return
     }
-    const comments = await postService.findCommentsByPostId(req.params.id, paggination)
+    const comments = await postService.findCommentsByPostId(req.params.id, paggination, userId)
     return res.status(200).send(comments)
 })
 
