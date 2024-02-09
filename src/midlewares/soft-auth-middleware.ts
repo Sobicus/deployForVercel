@@ -2,7 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import {jwtService} from "../application/jwt-service";
 import {userService} from "../domain/user-service";
 
-export const softAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const softAuthMiddleware = async (req: Request<any, any, any, any>, res: Response, next: NextFunction) => {
     if (!req.headers.authorization) {
         return next()
     }
@@ -15,8 +15,7 @@ export const softAuthMiddleware = async (req: Request, res: Response, next: Next
         req.user = await userService.findUserById(userId)
         console.log('user authMiddleware ')
         console.log(req.user)
-        next()
-        return
+        return next()
     }
     return next()
 }
