@@ -18,6 +18,7 @@ const pagination_helpers_1 = require("../helpers/pagination-helpers");
 const auth_middleware_1 = require("../midlewares/auth-middleware");
 const pagination_comments_1 = require("../helpers/pagination-comments");
 const input_comments_content_middleware_1 = require("../midlewares/input-comments-content-middleware");
+const soft_auth_middleware_1 = require("../midlewares/soft-auth-middleware");
 exports.postsRouter = (0, express_1.Router)();
 exports.postsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const postsPagination = (0, pagination_helpers_1.getPostsPagination)(req.query);
@@ -64,13 +65,15 @@ exports.postsRouter.post('/:id/comments', auth_middleware_1.authMiddleware, inpu
     const newComment = yield posts_service_1.postService.createCommetByPostId(req.params.id, req.body.content, req.user);
     return res.status(201).send(newComment);
 }));
-exports.postsRouter.get('/:id/comments', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.postsRouter.get('/:id/comments', soft_auth_middleware_1.softAuthMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
     const paggination = (0, pagination_comments_1.getCommentsPagination)(req.query);
     const post = yield posts_service_1.postService.findPostById(req.params.id);
     if (!post) {
         res.sendStatus(404);
         return;
     }
-    const comments = yield posts_service_1.postService.findCommentsById(req.params.id, paggination);
+    const comments = yield posts_service_1.postService.findCommentsByPostId(req.params.id, paggination, userId);
     return res.status(200).send(comments);
 }));

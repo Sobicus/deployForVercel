@@ -1,7 +1,6 @@
 import {blogBodyRequest} from "../routes/blogs-router";
 import {ObjectId} from "mongodb";
 import {IBlockPagination, IQuery, PaginationType, SortBlogsByEnum} from "../types/paggination-type";
-import {postService} from "../domain/posts-service";
 import {postsViewType} from "./posts-repository";
 import {getBlogsPagination} from "../helpers/pagination-helpers";
 import {BlogsModel, PostsModel} from "./db";
@@ -23,7 +22,6 @@ export type BlogViewType = {
     isMembership: boolean
 }
 
-
 export class BlogsRepository {
     async findAllBlogs(pagination: IBlockPagination): Promise<PaginationType<BlogViewType>> {
         const filter = {name: {$regex: pagination.searchNameTerm, $options: 'i'}}
@@ -44,9 +42,8 @@ export class BlogsRepository {
         const totalCount = await BlogsModel
             .countDocuments(filter)
         const pagesCount = Math.ceil(totalCount / pagination.pageSize)
-
         return {
-            pagesCount: pagesCount /*=== 0 ? 1 : pagesCount*/,
+            pagesCount: pagesCount,
             page: pagination.pageNumber,
             pageSize: pagination.pageSize,
             totalCount: totalCount,
@@ -76,7 +73,6 @@ export class BlogsRepository {
         if (!blog) {
             return null
         }
-        /*const blogId = blog._id.toString()*/
         const pagination = getBlogsPagination(query)
         const posts = await PostsModel
             .find({blogId: blogId})
@@ -104,18 +100,11 @@ export class BlogsRepository {
         }
     }
 
-    async createBlog(createModel: blogsRepositoryType): Promise<string>/*Promise<InsertOneResult>*/ /*Promise<BlogViewType>*/ {
+    async createBlog(createModel: blogsRepositoryType): Promise<string> {
         const resultNewBlog = await BlogsModel
             .create(createModel)
         return resultNewBlog._id.toString()
-        //.insertedId.toString()
     }
-
-    // async createPostByBlogId(title: string, shortDescription: string, content: string, blogId: string): Promise<postsViewType | null> {
-    //     const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
-    //     if (!createdPostByBlogId) return null
-    //     return createdPostByBlogId
-    // }
 
     async updateBlog(blogId: string, updateModel: blogBodyRequest): Promise<boolean> {
         const resultUpdateModel = await BlogsModel
