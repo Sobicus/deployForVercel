@@ -52,15 +52,18 @@ commentsRouter.put('/:id/like-status', authMiddleware, validationComentLikeStatu
     }, {
         likeStatus: LikesStatus
     }>, res: Response) => {
-        const comentsLikeStatus = req.body.likeStatus
+        const commentsLikeStatus = req.body.likeStatus
         const userId = req.user!.id
         const commentId = req.params.id
+        console.log('/:id/like-status ' +' commentId', commentId)
         /*const comment = await commentService.getCommentById(commentId)
         if (!comment) {
             res.sendStatus(404)
             return
         }*/
-        const result = await likeCommentsService.likeCommentUpdate(commentId, userId, comentsLikeStatus)
+        const result = await likeCommentsService.likeCommentUpdate(commentId, userId, commentsLikeStatus)
+        console.log('/:id/like-status ' +' result', result)
+
         if (result === '404') {
             res.sendStatus(404)
             return

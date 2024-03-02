@@ -19,14 +19,15 @@ const auth_middleware_1 = require("../midlewares/auth-middleware");
 const pagination_comments_1 = require("../helpers/pagination-comments");
 const input_comments_content_middleware_1 = require("../midlewares/input-comments-content-middleware");
 const soft_auth_middleware_1 = require("../midlewares/soft-auth-middleware");
+const posts_queryRepository_1 = require("../repositories/posts-queryRepository");
 exports.postsRouter = (0, express_1.Router)();
 exports.postsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const postsPagination = (0, pagination_helpers_1.getPostsPagination)(req.query);
-    const posts = yield posts_service_1.postService.findAllPosts(postsPagination);
+    const posts = yield posts_queryRepository_1.postsQueryRepository.findAllPosts(postsPagination);
     res.status(200).send(posts);
 }));
 exports.postsRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = yield posts_service_1.postService.findPostById(req.params.id);
+    const post = yield posts_queryRepository_1.postsQueryRepository.findPostById(req.params.id);
     if (!post) {
         res.sendStatus(404);
         return;
@@ -58,22 +59,21 @@ exports.postsRouter.delete('/:id', authorization_check_middleware_1.checkAuthori
     res.sendStatus(204);
 }));
 exports.postsRouter.post('/:id/comments', auth_middleware_1.authMiddleware, input_comments_content_middleware_1.validationCommentsContentMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = yield posts_service_1.postService.findPostById(req.params.id);
-    if (!post) {
+    const newComment = yield posts_service_1.postService.createCommetByPostId(req.params.id, req.body.content, req.user);
+    if (!newComment) {
         return res.sendStatus(404);
     }
-    const newComment = yield posts_service_1.postService.createCommetByPostId(req.params.id, req.body.content, req.user);
     return res.status(201).send(newComment);
 }));
 exports.postsRouter.get('/:id/comments', soft_auth_middleware_1.softAuthMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
     const paggination = (0, pagination_comments_1.getCommentsPagination)(req.query);
-    const post = yield posts_service_1.postService.findPostById(req.params.id);
+    const post = yield posts_queryRepository_1.postsQueryRepository.doesPostExist(req.params.id);
     if (!post) {
         res.sendStatus(404);
         return;
     }
-    const comments = yield posts_service_1.postService.findCommentsByPostId(req.params.id, paggination, userId);
+    const comments = yield posts_queryRepository_1.postsQueryRepository.findCommentsByPostId(req.params.id, paggination, userId);
     return res.status(200).send(comments);
 }));

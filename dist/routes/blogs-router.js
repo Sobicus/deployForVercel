@@ -17,14 +17,15 @@ const blogs_service_1 = require("../domain/blogs-service");
 const pagination_helpers_1 = require("../helpers/pagination-helpers");
 const input_postsByBlogId_validation_middleware_1 = require("../midlewares/input-postsByBlogId-validation-middleware");
 const posts_service_1 = require("../domain/posts-service");
+const blogs_queryRepository_1 = require("../repositories/blogs-queryRepository");
 exports.blogsRouter = (0, express_1.Router)();
 exports.blogsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helpers_1.getBlogsPagination)(req.query);
-    const blogs = yield blogs_service_1.blogsService.findAllBlogs(pagination);
+    const blogs = yield blogs_queryRepository_1.blogsQueryRepository.findAllBlogs(pagination);
     res.status(200).send(blogs);
 }));
 exports.blogsRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield blogs_service_1.blogsService.findBlogById(req.params.id);
+    const blog = yield blogs_queryRepository_1.blogsQueryRepository.findBlogById(req.params.id);
     if (!blog) {
         res.sendStatus(404);
         return;
@@ -34,7 +35,7 @@ exports.blogsRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, 
 exports.blogsRouter.get('/:id/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogId = req.params.id;
     const queryParam = req.query;
-    const posts = yield blogs_service_1.blogsService.findPostByBlogId(blogId, queryParam);
+    const posts = yield blogs_queryRepository_1.blogsQueryRepository.findPostByBlogId(blogId, queryParam);
     if (!posts) {
         res.sendStatus(404);
         return;

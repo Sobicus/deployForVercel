@@ -35,7 +35,7 @@ class BlogsRepository {
                 .countDocuments(filter);
             const pagesCount = Math.ceil(totalCount / pagination.pageSize);
             return {
-                pagesCount: pagesCount,
+                pagesCount: pagesCount /*=== 0 ? 1 : pagesCount*/,
                 page: pagination.pageNumber,
                 pageSize: pagination.pageSize,
                 totalCount: totalCount,
@@ -67,6 +67,7 @@ class BlogsRepository {
             if (!blog) {
                 return null;
             }
+            /*const blogId = blog._id.toString()*/
             const pagination = (0, pagination_helpers_1.getBlogsPagination)(query);
             const posts = yield db_1.PostsModel
                 .find({ blogId: blogId })
@@ -99,8 +100,14 @@ class BlogsRepository {
             const resultNewBlog = yield db_1.BlogsModel
                 .create(createModel);
             return resultNewBlog._id.toString();
+            //.insertedId.toString()
         });
     }
+    // async createPostByBlogId(title: string, shortDescription: string, content: string, blogId: string): Promise<postsViewType | null> {
+    //     const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
+    //     if (!createdPostByBlogId) return null
+    //     return createdPostByBlogId
+    // }
     updateBlog(blogId, updateModel) {
         return __awaiter(this, void 0, void 0, function* () {
             const resultUpdateModel = yield db_1.BlogsModel
