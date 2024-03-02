@@ -1,15 +1,11 @@
 import bcrypt from "bcrypt"
 import {
-    UsersRepository,
-    UsersOutputType,
-    UserServiceType,
-    UsersDbType,
-    EmailConfirmation
+    UsersRepository
 } from "../repositories/users-repository";
-import {IQueryUsersPagination} from "../helpers/pagination-users-helpers";
 import {randomUUID} from "crypto";
 import add from "date-fns/add";
 import {ObjectId} from "mongodb";
+import {UserServiceType, UsersDbType, UsersViewType} from "../types/user-types";
 
 class UsersService {
     userRepo: UsersRepository
@@ -17,12 +13,7 @@ class UsersService {
     constructor() {
         this.userRepo = new UsersRepository()
     }
-
-    async findAllUsers(pagination: IQueryUsersPagination) {
-        return await this.userRepo.findAllUsers(pagination)
-    }
-
-    async createUser(login: string, password: string, email: string): Promise<UsersOutputType>/*: Promise<UsersOutputType>*/ {
+    async createUser(login: string, password: string, email: string): Promise<UsersViewType>/*: Promise<UsersOutputType>*/ {
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(password, passwordSalt)
 
@@ -68,8 +59,8 @@ class UsersService {
         if (user.passwordHash !== passwordHash) return null
         return user
     }
-
-    async findUserById(userId: string): Promise<UsersOutputType | null> {
+//
+    async findUserById(userId: string): Promise<UsersDbType | null> {
         return await this.userRepo.findUserById(userId)
     }
 

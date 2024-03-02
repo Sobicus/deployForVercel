@@ -1,13 +1,12 @@
-import {blogBodyRequest} from "../routes/blogs-router";
 import {ObjectId} from "mongodb";
 import {IBlockPagination, IQuery, PaginationType, SortBlogsByEnum} from "../types/paggination-type";
 import {getBlogsPagination} from "../helpers/pagination-helpers";
 import {BlogsModel, PostsModel} from "./db";
-import {BlogViewType, blogsDbType} from "../types/blog-types";
-import {PostsViewType} from "../types/post-types";
+import {BlogViewType} from "../types/blog-types";
+import { PostsViewType } from "../types/post-types";
 
 
-export class BlogsRepository {
+export class BlogsQueryRepository {
     async findAllBlogs(pagination: IBlockPagination): Promise<PaginationType<BlogViewType>> {
         const filter = {name: {$regex: pagination.searchNameTerm, $options: 'i'}}
         const blogs = await BlogsModel
@@ -86,29 +85,6 @@ export class BlogsRepository {
             "items": allPosts
         }
     }
-
-    async createBlog(createModel: blogsDbType): Promise<string>/*Promise<InsertOneResult>*/ /*Promise<BlogViewType>*/ {
-        const resultNewBlog = await BlogsModel
-            .create(createModel)
-        return resultNewBlog._id.toString()
-        //.insertedId.toString()
-    }
-
-    // async createPostByBlogId(title: string, shortDescription: string, content: string, blogId: string): Promise<postsViewType | null> {
-    //     const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
-    //     if (!createdPostByBlogId) return null
-    //     return createdPostByBlogId
-    // }
-
-    async updateBlog(blogId: string, updateModel: blogBodyRequest): Promise<boolean> {
-        const resultUpdateModel = await BlogsModel
-            .updateOne({_id: new ObjectId(blogId)}, {$set: updateModel})
-        return resultUpdateModel.matchedCount === 1
-    }
-
-    async deleteBlog(blogId: string): Promise<boolean> {
-        const resultDeleteBlog = await BlogsModel
-            .deleteOne({_id: new ObjectId(blogId)})
-        return resultDeleteBlog.deletedCount === 1
-    }
 }
+
+export const blogsQueryRepository = new BlogsQueryRepository()

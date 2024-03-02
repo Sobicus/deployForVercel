@@ -1,32 +1,46 @@
 import {CommentsRepository} from "../repositories/comments-repository";
-import {CommentsRepositoryType, CommentViewType} from "../types/comments-type";
-import {CommentsQueryRepository} from "../repositories/comments-queryRepository";
 
 class CommentService {
     commentRepo: CommentsRepository
-    commentQueryRepo:CommentsQueryRepository
+
+    //commentQueryRepo:CommentsQueryRepository
 
     constructor() {
         this.commentRepo = new CommentsRepository()
-        this.commentQueryRepo = new CommentsQueryRepository()
+        //this.commentQueryRepo = new CommentsQueryRepository()
     }
 
-    async getCommentById(commentId: string,userId?:string): Promise<CommentViewType | null> {
-        return await this.commentQueryRepo.getCommentById(commentId,userId)
-    }
-
-    async updatePost(commentId: string, content: string): Promise<boolean> {
+    /*
+        async getCommentById(commentId: string,userId?:string): Promise<CommentViewType | null> {
+            return await this.commentQueryRepo.getCommentById(commentId,userId)
+        }
+    */
+    async updatePost(commentId: string, content: string, userId: string): Promise<boolean | string> {
+        const resault = await this.commentRepo.findCommentsById(commentId)
+        if (!resault) {
+            return false
+        }
+        if (resault.userId !== userId) {
+            return '403'
+        }
         return await this.commentRepo.updateComment(commentId, content)
     }
 
-    async deleteComment(commentId: string): Promise<boolean> {
+    async deleteComment(commentId: string, userId:string): Promise<boolean | string> {
+        const resault = await this.commentRepo.findCommentsById(commentId)
+        if (!resault) {
+            return false
+        }
+        if(resault.userId !== userId){
+            return '403'
+        }
         return await this.commentRepo.deleteComment(commentId)
     }
 
     //check below
-    async getDbCommentById(commentId: string): Promise<CommentsRepositoryType | null> {
+    /*async getDbCommentById(commentId: string): Promise<CommentsDbType | null> {
         return await this.commentRepo.getCommentById(commentId)
-    }
+    }*/
 }
 
 export const commentService = new CommentService()

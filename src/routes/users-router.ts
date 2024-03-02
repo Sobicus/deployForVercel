@@ -3,12 +3,13 @@ import {userService} from "../domain/user-service";
 import {checkAuthorization} from "../midlewares/authorization-check-middleware";
 import {validationUsersMiddleware} from "../midlewares/input-user-validation-middleware";
 import {IQueryUsers, getPaginationUsersHelpers} from "../helpers/pagination-users-helpers";
+import {usersQueryRepository} from "../repositories/users-queryRepository";
 
 export const usersRouter = Router()
 
 usersRouter.get('/', checkAuthorization, async (req: Request<{}, {}, {}, IQueryUsers>, res: Response) => {
     const usersPagination = getPaginationUsersHelpers(req.query)
-    const users = await userService.findAllUsers(usersPagination)
+    const users = await usersQueryRepository.findAllUsers(usersPagination)
     res.status(200).send(users)
 })
 usersRouter.post('/', checkAuthorization, validationUsersMiddleware,

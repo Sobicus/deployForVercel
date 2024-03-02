@@ -1,4 +1,4 @@
-import { CommentViewType} from "../types/comments-type";
+import { CommentViewType} from "../types/comment-types";
 import {ObjectId} from "mongodb";
 import {CommentsModel, LikesCommentsModel} from "./db";
 import {LikesStatus} from "./likes-commets-repository";
@@ -41,6 +41,5 @@ export class CommentsQueryRepository {
         }
         return result
     }
-
-
 }
+export const commentsQueryRepository = new CommentsQueryRepository()
