@@ -1,18 +1,17 @@
 import bcrypt from "bcrypt"
-import {
-    UsersRepository
-} from "../repositories/users-repository";
+import {UsersRepository} from "../repositories/users-repository";
 import {randomUUID} from "crypto";
 import add from "date-fns/add";
 import {ObjectId} from "mongodb";
 import {UserServiceType, UsersDbType, UsersViewType} from "../types/user-types";
 
-class UsersService {
-    userRepo: UsersRepository
+export class UsersService {
+    userRepository: UsersRepository
 
-    constructor() {
-        this.userRepo = new UsersRepository()
+    constructor(userRepository: UsersRepository) {
+        this.userRepository = userRepository
     }
+
     async createUser(login: string, password: string, email: string): Promise<UsersViewType>/*: Promise<UsersOutputType>*/ {
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(password, passwordSalt)
@@ -34,13 +33,13 @@ class UsersService {
                 isConfirmed: false
             }
         }
-        const id = await this.userRepo.createUser(createUserModel)
+        const id = await this.userRepository.createUser(createUserModel)
         return {id, login, email, createdAt}
         // return createUserModel.emailConfirmation.confirmationCode
     }
 
     async deleteUser(userId: string): Promise<boolean> {
-        return await this.userRepo.deleteUser(userId)
+        return await this.userRepository.deleteUser(userId)
     }
 
     async _generateHash(password: string, salt: string): Promise<string> {
@@ -50,7 +49,7 @@ class UsersService {
     }
 
     async checkCredentials(loginOrMail: string, password: string): Promise<null | UserServiceType> {
-        const user = await this.userRepo.findByLoginOrEmail(loginOrMail)
+        const user = await this.userRepository.findByLoginOrEmail(loginOrMail)
         if (!user) return null
         //if (!user.emailConfirmation.isConfirmed) return null
         const passwordHash = await this._generateHash(password, user.passwordSalt)
@@ -59,31 +58,32 @@ class UsersService {
         if (user.passwordHash !== passwordHash) return null
         return user
     }
+
 //
     async findUserById(userId: string): Promise<UsersDbType | null> {
-        return await this.userRepo.findUserById(userId)
+        return await this.userRepository.findUserById(userId)
     }
 
     async findUserByConfirmationCode(confirmationCode: string): Promise<UsersDbType | null> {
-        return await this.userRepo.findUserByConfirmationCode(confirmationCode)
+        return await this.userRepository.findUserByConfirmationCode(confirmationCode)
     }
 
     async updateConfirmation(id: ObjectId): Promise<boolean> {
-        return await this.userRepo.updateConfirmation(id)
+        return await this.userRepository.updateConfirmation(id)
     }
 
     async updateCodeAfterResend(id: string, newCode: string) {
-        return await this.userRepo.updateCodeAfterResend(id, newCode)
+        return await this.userRepository.updateCodeAfterResend(id, newCode)
     }
 
     async findUserByEmailOrLogin(emailOrLogin: string): Promise<UserServiceType | null> {
-        return await this.userRepo.findByLoginOrEmail(emailOrLogin)
+        return await this.userRepository.findByLoginOrEmail(emailOrLogin)
     }
 
     async changePassword(userId: string, newPassword: string): Promise<boolean> {
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(newPassword, passwordSalt)
-        return await this.userRepo.changePassword(userId, passwordSalt, passwordHash)
+        return await this.userRepository.changePassword(userId, passwordSalt, passwordHash)
     }
 
     /*async findUserByLoginOrEmail(login:string,email:string):Promise<UsersDbType | null>{
@@ -91,4 +91,3 @@ class UsersService {
     }*/
 }
 
-export const userService = new UsersService()

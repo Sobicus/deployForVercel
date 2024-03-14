@@ -1,14 +1,15 @@
 import {PostsRepository} from "../repositories/posts-repository";
-import {postBodyRequest} from "../routes/posts-router";
 import {CommentViewType, newCommentType} from "../types/comment-types";
-import {UsersViewType} from "../types/user-types";
+import {UsersDbType, UsersViewType} from "../types/user-types";
 import {PostsViewType} from "../types/post-types";
+import {postBodyRequest} from "../types/postsRouter-types";
+import {LikesStatus} from "../types/likes-comments-repository-types";
 
-class PostsService {
-    postRepo: PostsRepository
+export class PostsService {
+    private postRepo: PostsRepository
 
-    constructor() {
-        this.postRepo = new PostsRepository()
+    constructor(postRepo: PostsRepository) {
+        this.postRepo = postRepo
     }
 
     /* async findAllPosts(postsPagination: IDefaultPagination<SortPostsByEnum>): Promise<PaginationType<postsViewType>> {
@@ -27,10 +28,21 @@ class PostsService {
             blogId,
             createdAt: new Date().toISOString()
         };
-
+        const extendedLikesInfo = {
+            likesCount: 0,
+            dislikesCount: 0,
+            myStatus: LikesStatus.None,
+            newestLikes: [
+                {
+                    addedAt: new Date().toISOString(),
+                    userId: "string",
+                    login: "string"
+                }
+            ]
+        }
         const mongoResponse = await this.postRepo.createPost(newPost)
         if (!mongoResponse) return null
-        return {id: mongoResponse.postId, blogName: mongoResponse.blogName, ...newPost};
+        return {id: mongoResponse.postId, blogName: mongoResponse.blogName, ...newPost, extendedLikesInfo}
     }
 
     async updatePost(postId: string, updateModel: postBodyRequest): Promise<boolean> {
@@ -45,14 +57,14 @@ class PostsService {
         return await this.postRepo.deletePost(postId)
     }
 
-    async createCommetByPostId(postId: string, content: string, user: UsersViewType): Promise<CommentViewType | boolean> {
+    async createCommetByPostId(postId: string, content: string, user: UsersDbType): Promise<CommentViewType | boolean> {
         const post = await this.postRepo.findPostById(postId)
         if (!post) return false
         const comment: newCommentType = {
             createdAt: new Date().toISOString(),
             postId,
             content,
-            userId: user.id,
+            userId: user._id.toString(),
             userLogin: user.login
         }
         return await this.postRepo.createCommetByPostId(comment);
@@ -63,4 +75,4 @@ class PostsService {
       }*/
 }
 
-export const postService = new PostsService()
+//export const postService = new PostsService()

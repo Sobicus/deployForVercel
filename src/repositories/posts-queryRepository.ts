@@ -2,32 +2,54 @@ import {ObjectId} from "mongodb";
 import {IPostPagination, PaginationType} from "../types/paggination-type";
 import {CommentsViewType} from "../types/comment-types";
 import {DefaultCommentsPaginationType} from "../helpers/pagination-comments";
-import { CommentsModel, LikesCommentsModel, PostsModel} from "./db";
-import {LikesStatus} from "./likes-commets-repository";
-import { PostsViewType } from "../types/post-types";
+import {CommentsModel, LikesCommentsModel, LikesPostsModel, PostsModel} from "./db";
+import {PostsViewType} from "../types/post-types";
+import {LikesStatus} from "../types/likes-comments-repository-types";
+import {likesPostsRepository, likesPostsService} from "../composition-root";
 
 export class PostsQueryRepository {
 
-    async findAllPosts(postsPagination: IPostPagination): Promise<PaginationType<PostsViewType>> {
+    async findAllPosts(postsPagination: IPostPagination, userId?: string): Promise<PaginationType<PostsViewType>> {
         const posts = await PostsModel
             .find({})
             .sort({[postsPagination.sortBy]: postsPagination.sortDirection})
             .limit(postsPagination.pageSize)
             .skip(postsPagination.skip)
             .lean()
-        const totalCount = await PostsModel
-            .countDocuments()
+        const totalCount = await PostsModel.countDocuments()
         const pagesCount = Math.ceil(totalCount / postsPagination.pageSize)
-        const allPosts = posts.map(p => (
-            {
+
+
+        const allPosts = await Promise.all(posts.map(async p => {
+            let myStatus = LikesStatus.None
+            if (userId) {
+                const reaction = await LikesPostsModel.findOne({postId: p._id, userId})
+                myStatus = reaction ? reaction.myStatus : LikesStatus.None
+            }
+            const newestLikes = await likesPostsRepository.findLastThreePostsLikesByPostId(p._id.toString())
+
+            return {
                 id: p._id.toString(),
                 title: p.title,
                 shortDescription: p.shortDescription,
                 content: p.content,
                 blogId: p.blogId,
                 blogName: p.blogName,
-                createdAt: p.createdAt
-            }))
+                createdAt: p.createdAt,
+                extendedLikesInfo: {
+                    likesCount: await LikesPostsModel.countDocuments({
+                        postId: p._id.toString(),
+                        myStatus: LikesStatus.Like
+                    }),
+                    dislikesCount: await LikesPostsModel.countDocuments({
+                        postId: p._id.toString(),
+                        myStatus: LikesStatus.Dislike
+                    }),
+                    myStatus: myStatus,
+                    newestLikes: newestLikes
+                }
+            }
+        }))
         return {
             pagesCount: pagesCount,
             page: postsPagination.pageNumber,
@@ -37,12 +59,18 @@ export class PostsQueryRepository {
         }
     }
 
-    async findPostById(postId: string): Promise<PostsViewType | null> {
+    async findPostById(postId: string, userId?: string): Promise<PostsViewType | null> {
         let post = await PostsModel
             .findOne({_id: new ObjectId(postId)})
         if (!post) {
             return null
         }
+        let myStatus = LikesStatus.None
+        if (userId) {
+            const reaction = await LikesPostsModel.findOne({postId, userId})
+            myStatus = reaction ? reaction.myStatus : LikesStatus.None
+        }
+        const newestLikes = await likesPostsRepository.findLastThreePostsLikesByPostId(postId)
         return {
             id: post._id.toString(),
             title: post.title,
@@ -50,9 +78,16 @@ export class PostsQueryRepository {
             content: post.content,
             blogId: post.blogId,
             blogName: post.blogName,
-            createdAt: post.createdAt
+            createdAt: post.createdAt,
+            extendedLikesInfo: {
+                likesCount: await LikesPostsModel.countDocuments({postId, myStatus: LikesStatus.Like}),
+                dislikesCount: await LikesPostsModel.countDocuments({postId, myStatus: LikesStatus.Dislike}),
+                myStatus: myStatus,
+                newestLikes: newestLikes
+            }
         }
     }
+
     async findCommentsByPostId(postId: string, paggination: DefaultCommentsPaginationType, userId?: string): Promise<CommentsViewType> {
         // const paggination = getCommentsPagination(query)
         const commets = await CommentsModel
@@ -101,12 +136,10 @@ export class PostsQueryRepository {
             items: comments
         }
     }
+
     async doesPostExist(postId: string): Promise<boolean> {
         let post = await PostsModel
             .findOne({_id: new ObjectId(postId)})
-       return !!post
-
+        return !!post
     }
 }
-
-export const postsQueryRepository = new PostsQueryRepository()

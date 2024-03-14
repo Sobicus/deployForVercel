@@ -1,7 +1,7 @@
 import { CommentViewType} from "../types/comment-types";
 import {ObjectId} from "mongodb";
 import {CommentsModel, LikesCommentsModel} from "./db";
-import {LikesStatus} from "./likes-commets-repository";
+import { LikesStatus } from "../types/likes-comments-repository-types";
 
 export class CommentsQueryRepository {
     async getCommentById(commentId: string, userId?: string): Promise<CommentViewType | null> {
@@ -42,4 +42,3 @@ export class CommentsQueryRepository {
         return result
     }
 }
-export const commentsQueryRepository = new CommentsQueryRepository()

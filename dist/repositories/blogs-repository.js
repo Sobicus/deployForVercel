@@ -11,90 +11,85 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsRepository = void 0;
 const mongodb_1 = require("mongodb");
-const pagination_helpers_1 = require("../helpers/pagination-helpers");
 const db_1 = require("./db");
 class BlogsRepository {
-    findAllBlogs(pagination) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const filter = { name: { $regex: pagination.searchNameTerm, $options: 'i' } };
-            const blogs = yield db_1.BlogsModel
-                .find(filter)
-                .sort({ [pagination.sortBy]: pagination.sortDirection })
-                .limit(pagination.pageSize)
-                .skip(pagination.skip)
-                .lean();
-            const allBlogs = blogs.map(b => ({
-                id: b._id.toString(),
-                name: b.name,
-                websiteUrl: b.websiteUrl,
-                description: b.description,
-                createdAt: b.createdAt,
-                isMembership: b.isMembership
-            }));
-            const totalCount = yield db_1.BlogsModel
-                .countDocuments(filter);
-            const pagesCount = Math.ceil(totalCount / pagination.pageSize);
-            return {
-                pagesCount: pagesCount /*=== 0 ? 1 : pagesCount*/,
-                page: pagination.pageNumber,
-                pageSize: pagination.pageSize,
-                totalCount: totalCount,
-                items: allBlogs
-            };
-        });
-    }
-    findBlogById(blogId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield db_1.BlogsModel
-                .findOne({ _id: new mongodb_1.ObjectId(blogId) });
-            if (!blog) {
-                return null;
-            }
-            return {
-                id: blog._id.toString(),
-                name: blog.name,
-                websiteUrl: blog.websiteUrl,
-                description: blog.description,
-                createdAt: blog.createdAt,
-                isMembership: blog.isMembership
-            };
-        });
-    }
-    findPostByBlogId(blogId, query) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield db_1.BlogsModel
-                .findOne({ _id: new mongodb_1.ObjectId(blogId) });
-            if (!blog) {
-                return null;
-            }
-            /*const blogId = blog._id.toString()*/
-            const pagination = (0, pagination_helpers_1.getBlogsPagination)(query);
-            const posts = yield db_1.PostsModel
-                .find({ blogId: blogId })
-                .sort({ [pagination.sortBy]: pagination.sortDirection })
-                .skip(pagination.skip).limit(pagination.pageSize)
-                .lean();
-            const allPosts = posts.map(p => ({
-                id: p._id.toString(),
-                title: p.title,
-                shortDescription: p.shortDescription,
-                content: p.content,
-                blogId: p.blogId,
-                blogName: p.blogName,
-                createdAt: p.createdAt
-            }));
-            const totalCount = yield db_1.PostsModel
-                .countDocuments({ blogId: blogId });
-            const pagesCount = Math.ceil(totalCount / pagination.pageSize);
-            return {
-                "pagesCount": pagesCount,
-                "page": pagination.pageNumber,
-                "pageSize": pagination.pageSize,
-                "totalCount": totalCount,
-                "items": allPosts
-            };
-        });
-    }
+    // async findAllBlogs(pagination: IBlockPagination): Promise<PaginationType<BlogViewType>> {
+    //     const filter = {name: {$regex: pagination.searchNameTerm, $options: 'i'}}
+    //     const blogs = await BlogsModel
+    //         .find(filter)
+    //         .sort({[pagination.sortBy]: pagination.sortDirection})
+    //         .limit(pagination.pageSize)
+    //         .skip(pagination.skip)
+    //         .lean();
+    //     const allBlogs = blogs.map(b => ({
+    //         id: b._id.toString(),
+    //         name: b.name,
+    //         websiteUrl: b.websiteUrl,
+    //         description: b.description,
+    //         createdAt: b.createdAt,
+    //         isMembership: b.isMembership
+    //     }))
+    //     const totalCount = await BlogsModel
+    //         .countDocuments(filter)
+    //     const pagesCount = Math.ceil(totalCount / pagination.pageSize)
+    //
+    //     return {
+    //         pagesCount: pagesCount /*=== 0 ? 1 : pagesCount*/,
+    //         page: pagination.pageNumber,
+    //         pageSize: pagination.pageSize,
+    //         totalCount: totalCount,
+    //         items: allBlogs
+    //     }
+    // }
+    /*async findBlogById(blogId: string): Promise<BlogViewType | null> {
+        let blog = await BlogsModel
+            .findOne({_id: new ObjectId(blogId)})
+        if (!blog) {
+            return null
+        }
+        return {
+            id: blog._id.toString(),
+            name: blog.name,
+            websiteUrl: blog.websiteUrl,
+            description: blog.description,
+            createdAt: blog.createdAt,
+            isMembership: blog.isMembership
+        }
+    }*/
+    //
+    // async findPostByBlogId(blogId: string, query: IQuery<SortBlogsByEnum>): Promise<PaginationType<PostsViewType> | null> {
+    //     let blog = await BlogsModel
+    //         .findOne({_id: new ObjectId(blogId)})
+    //     if (!blog) {
+    //         return null
+    //     }
+    //     /*const blogId = blog._id.toString()*/
+    //     const pagination = getBlogsPagination(query)
+    //     const posts = await PostsModel
+    //         .find({blogId: blogId})
+    //         .sort({[pagination.sortBy]: pagination.sortDirection})
+    //         .skip(pagination.skip).limit(pagination.pageSize)
+    //         .lean();
+    //     const allPosts = posts.map(p => ({
+    //         id: p._id.toString(),
+    //         title: p.title,
+    //         shortDescription: p.shortDescription,
+    //         content: p.content,
+    //         blogId: p.blogId,
+    //         blogName: p.blogName,
+    //         createdAt: p.createdAt
+    //     }))
+    //     const totalCount = await PostsModel
+    //         .countDocuments({blogId: blogId})
+    //     const pagesCount = Math.ceil(totalCount / pagination.pageSize)
+    //     return {
+    //         "pagesCount": pagesCount,
+    //         "page": pagination.pageNumber,
+    //         "pageSize": pagination.pageSize,
+    //         "totalCount": totalCount,
+    //         "items": allPosts
+    //     }
+    // }
     createBlog(createModel) {
         return __awaiter(this, void 0, void 0, function* () {
             const resultNewBlog = yield db_1.BlogsModel

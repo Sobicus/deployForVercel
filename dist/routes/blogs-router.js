@@ -13,63 +13,91 @@ exports.blogsRouter = void 0;
 const express_1 = require("express");
 const authorization_check_middleware_1 = require("../midlewares/authorization-check-middleware");
 const input_blogs_validation_middleware_1 = require("../midlewares/input-blogs-validation-middleware");
-const blogs_service_1 = require("../domain/blogs-service");
 const pagination_helpers_1 = require("../helpers/pagination-helpers");
 const input_postsByBlogId_validation_middleware_1 = require("../midlewares/input-postsByBlogId-validation-middleware");
-const posts_service_1 = require("../domain/posts-service");
-const blogs_queryRepository_1 = require("../repositories/blogs-queryRepository");
+const composition_root_1 = require("../composition-root");
 exports.blogsRouter = (0, express_1.Router)();
-exports.blogsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const pagination = (0, pagination_helpers_1.getBlogsPagination)(req.query);
-    const blogs = yield blogs_queryRepository_1.blogsQueryRepository.findAllBlogs(pagination);
-    res.status(200).send(blogs);
-}));
-exports.blogsRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield blogs_queryRepository_1.blogsQueryRepository.findBlogById(req.params.id);
-    if (!blog) {
-        res.sendStatus(404);
-        return;
+class BlogsController {
+    constructor(blogService, blogsQueryRepository, postService) {
+        this.blogsService = blogService;
+        this.blogsQueryRepository = blogsQueryRepository;
+        this.postService = postService;
     }
-    res.status(200).send(blog);
-}));
-exports.blogsRouter.get('/:id/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blogId = req.params.id;
-    const queryParam = req.query;
-    const posts = yield blogs_queryRepository_1.blogsQueryRepository.findPostByBlogId(blogId, queryParam);
-    if (!posts) {
-        res.sendStatus(404);
-        return;
+    getAllBlogs(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const pagination = (0, pagination_helpers_1.getBlogsPagination)(req.query);
+            const blogs = yield this.blogsQueryRepository.findAllBlogs(pagination);
+            res.status(200).send(blogs);
+        });
     }
-    res.status(200).send(posts);
-}));
-exports.blogsRouter.post('/:id/posts', authorization_check_middleware_1.checkAuthorization, ...input_postsByBlogId_validation_middleware_1.validationPostsByBlogIdMidleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blogId = req.params.id;
-    const { title, shortDescription, content } = req.body;
-    const post = yield posts_service_1.postService.createPost(title, shortDescription, content, blogId);
-    //const createdPostByBlogId = await postService.createPost(title, shortDescription, content, blogId)
-    if (!post)
-        return res.sendStatus(404);
-    return res.status(201).send(post);
-}));
-exports.blogsRouter.post('/', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, description, websiteUrl } = req.body;
-    const createdBlog = yield blogs_service_1.blogsService.createBlog({ name, description, websiteUrl });
-    res.status(201).send(createdBlog);
-}));
-exports.blogsRouter.put('/:id', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { name, description, websiteUrl } = req.body;
-    const blogIsUpdated = yield blogs_service_1.blogsService.updateBlog(req.params.id, { name, description, websiteUrl });
-    if (!blogIsUpdated) {
-        res.sendStatus(404);
-        return;
+    getBlogById(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blog = yield this.blogsQueryRepository.findBlogById(req.params.id);
+            if (!blog) {
+                res.sendStatus(404);
+                return;
+            }
+            res.status(200).send(blog);
+        });
     }
-    res.sendStatus(204);
-}));
-exports.blogsRouter.delete('/:id', authorization_check_middleware_1.checkAuthorization, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blogIsDeleted = yield blogs_service_1.blogsService.deleteBlog(req.params.id);
-    if (!blogIsDeleted) {
-        res.sendStatus(404);
-        return;
+    getPostsByBlogId(req, res) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            const blogId = req.params.id;
+            const queryParam = req.query;
+            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id.toString();
+            const posts = yield this.blogsQueryRepository.findPostByBlogId(blogId, queryParam, userId);
+            if (!posts) {
+                res.sendStatus(404);
+                return;
+            }
+            res.status(200).send(posts);
+        });
     }
-    res.sendStatus(204);
-}));
+    createPost(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blogId = req.params.id;
+            const { title, shortDescription, content } = req.body;
+            const post = yield this.postService.createPost(title, shortDescription, content, blogId);
+            if (!post)
+                return res.sendStatus(404);
+            return res.status(201).send(post);
+        });
+    }
+    createBlog(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { name, description, websiteUrl } = req.body;
+            const createdBlog = yield this.blogsService.createBlog({ name, description, websiteUrl });
+            res.status(201).send(createdBlog);
+        });
+    }
+    updateBlog(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { name, description, websiteUrl } = req.body;
+            const blogIsUpdated = yield this.blogsService.updateBlog(req.params.id, { name, description, websiteUrl });
+            if (!blogIsUpdated) {
+                res.sendStatus(404);
+                return;
+            }
+            res.sendStatus(204);
+        });
+    }
+    deleteBlog(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blogIsDeleted = yield this.blogsService.deleteBlog(req.params.id);
+            if (!blogIsDeleted) {
+                res.sendStatus(404);
+                return;
+            }
+            res.sendStatus(204);
+        });
+    }
+}
+const blogsControllerInstance = new BlogsController(composition_root_1.blogService, composition_root_1.blogsQueryRepository, composition_root_1.postService);
+exports.blogsRouter.get('/', blogsControllerInstance.getAllBlogs.bind(blogsControllerInstance));
+exports.blogsRouter.get(':id', blogsControllerInstance.getBlogById.bind(blogsControllerInstance));
+exports.blogsRouter.get('/:id/posts', blogsControllerInstance.getPostsByBlogId.bind(blogsControllerInstance));
+exports.blogsRouter.post('/:id/posts', authorization_check_middleware_1.checkAuthorization, ...input_postsByBlogId_validation_middleware_1.validationPostsByBlogIdMidleware, blogsControllerInstance.createPost.bind(blogsControllerInstance));
+exports.blogsRouter.post('/', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, blogsControllerInstance.createBlog.bind(blogsControllerInstance));
+exports.blogsRouter.put('/:id', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, blogsControllerInstance.updateBlog.bind(blogsControllerInstance));
+exports.blogsRouter.delete('/:id', authorization_check_middleware_1.checkAuthorization, blogsControllerInstance.deleteBlog.bind(blogsControllerInstance));

@@ -1,12 +1,12 @@
 import {CommentsRepository} from "../repositories/comments-repository";
 
-class CommentService {
+export class CommentsService {
     commentRepo: CommentsRepository
 
     //commentQueryRepo:CommentsQueryRepository
 
-    constructor() {
-        this.commentRepo = new CommentsRepository()
+    constructor(commentRepo: CommentsRepository) {
+        this.commentRepo = commentRepo
         //this.commentQueryRepo = new CommentsQueryRepository()
     }
 
@@ -15,7 +15,7 @@ class CommentService {
             return await this.commentQueryRepo.getCommentById(commentId,userId)
         }
     */
-    async updatePost(commentId: string, content: string, userId: string): Promise<boolean | string> {
+    async updateComments(commentId: string, content: string, userId: string): Promise<boolean | string> {
         const resault = await this.commentRepo.findCommentsById(commentId)
         if (!resault) {
             return false
@@ -26,12 +26,12 @@ class CommentService {
         return await this.commentRepo.updateComment(commentId, content)
     }
 
-    async deleteComment(commentId: string, userId:string): Promise<boolean | string> {
+    async deleteComment(commentId: string, userId: string): Promise<boolean | string> {
         const resault = await this.commentRepo.findCommentsById(commentId)
         if (!resault) {
             return false
         }
-        if(resault.userId !== userId){
+        if (resault.userId !== userId) {
             return '403'
         }
         return await this.commentRepo.deleteComment(commentId)
@@ -43,4 +43,4 @@ class CommentService {
     }*/
 }
 
-export const commentService = new CommentService()
+//export const commentService = new CommentService()

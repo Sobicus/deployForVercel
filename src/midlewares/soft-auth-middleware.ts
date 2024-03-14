@@ -1,8 +1,7 @@
 import {NextFunction, Request, Response} from "express";
-import {jwtService} from "../application/jwt-service";
-import {userService} from "../domain/user-service";
 import {queryCommentsType} from "../helpers/pagination-comments";
-import {RequestWithParamsAndQuery} from "../routes/posts-router";
+import {RequestWithParamsAndQuery} from "../types/postsRouter-types";
+import {jwtService, usersService } from "../composition-root";
 
 export const softAuthMiddleware = async (req: RequestWithParamsAndQuery<{
     id: string
@@ -13,7 +12,7 @@ export const softAuthMiddleware = async (req: RequestWithParamsAndQuery<{
     const token = req.headers.authorization.split(' ')[1]
     const userId = await jwtService.getUserIdByToken(token)
     if (userId) {
-        req.user = await userService.findUserById(userId)
+        req.user = await usersService.findUserById(userId)
     }
     return next()
 }

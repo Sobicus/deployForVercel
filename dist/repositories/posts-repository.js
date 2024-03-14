@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
-const likes_commets_repository_1 = require("./likes-commets-repository");
+const likes_comments_repository_types_1 = require("../types/likes-comments-repository-types");
 class PostsRepository {
     /*async findAllPosts(postsPagination: IPostPagination): Promise<PaginationType<postsViewType>> {
         const posts = await PostsModel
@@ -140,7 +140,7 @@ class PostsRepository {
                 likesInfo: {
                     likesCount: 0,
                     dislikesCount: 0,
-                    myStatus: likes_commets_repository_1.LikesStatus.None
+                    myStatus: likes_comments_repository_types_1.LikesStatus.None
                 }
             };
         });

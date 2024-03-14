@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validationPostsMiddleware = void 0;
 const express_validator_1 = require("express-validator");
 const errorValidator_1 = require("./errorValidator");
-const blogs_queryRepository_1 = require("../repositories/blogs-queryRepository");
+const composition_root_1 = require("../composition-root");
 exports.validationPostsMiddleware = [
     (0, express_validator_1.body)('title')
         .isString().withMessage('Title not a string')
@@ -28,7 +28,7 @@ exports.validationPostsMiddleware = [
         .isString().trim().isLength({ max: 1000 }).withMessage('Content cannot be more than 1000 characters'),
     (0, express_validator_1.body)('blogId').custom((value) => __awaiter(void 0, void 0, void 0, function* () {
         //const blogIsExist = await blogsService.findBlogById(value);
-        const blogIsExist = yield blogs_queryRepository_1.blogsQueryRepository.findBlogById(value);
+        const blogIsExist = yield composition_root_1.blogsQueryRepository.findBlogById(value);
         if (!blogIsExist) {
             throw new Error("Blog not exist");
         }
