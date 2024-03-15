@@ -69,7 +69,6 @@ export class PostsQueryRepository {
         }
         let myStatus = LikesStatus.None
         if (userId) {
-            console.log('await LikesPostsModel.findOne({postId, userId})', await LikesPostsModel.findOne({postId, userId}))
             const reaction = await LikesPostsModel.findOne({postId, userId}).exec()
             myStatus = reaction ? reaction.myStatus : LikesStatus.None
         }
