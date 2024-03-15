@@ -6,9 +6,7 @@ import {validationCommentsContentMiddleware} from "../midlewares/input-comments-
 import {softAuthMiddleware} from "../midlewares/soft-auth-middleware";
 import {postsControllerInstance} from "./posts-controller";
 
-
 export const postsRouter = Router()
-
 
 postsRouter.get('/',softAuthMiddleware, postsControllerInstance.getAllPosts.bind(postsControllerInstance))
 postsRouter.get('/:id',softAuthMiddleware, postsControllerInstance.findPostById.bind(postsControllerInstance))
