@@ -42,6 +42,6 @@ class UsersController {
 
 const usersControllerInstance = new UsersController(usersQueryRepository, usersService)
 
-usersRouter.get('/', checkAuthorization, usersControllerInstance.findAllUsers)
-usersRouter.post('/', checkAuthorization, validationUsersMiddleware, usersControllerInstance.createUser)
-usersRouter.delete('/:id', checkAuthorization, usersControllerInstance.deleteUser)
+usersRouter.get('/', checkAuthorization, usersControllerInstance.findAllUsers.bind(usersControllerInstance))
+usersRouter.post('/', checkAuthorization, validationUsersMiddleware, usersControllerInstance.createUser.bind(usersControllerInstance))
+usersRouter.delete('/:id', checkAuthorization, usersControllerInstance.deleteUser.bind(usersControllerInstance))
