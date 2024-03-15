@@ -73,7 +73,19 @@ export class BlogsQueryRepository {
                 const reaction = await LikesPostsModel.findOne({postId: p._id, userId})
                 myStatus = reaction ? reaction.myStatus : LikesStatus.None
             }
-            const newestLikes = await likesPostsRepository.findLastThreePostsLikesByPostId(p._id.toString())
+            const newestLikes = await LikesPostsModel.find({
+                postId:p._id.toString(),
+                myStatus: LikesStatus.Like
+            }).sort({'createAt': -1})
+                .limit(3)
+                .skip(0)
+                .lean()
+            const newestLikesViewModel =newestLikes.map(l=>{
+                return{
+                    addedAt: l.createAt,
+                    userId: l.userId,
+                    login: l.login            }
+            })
             return {
                 id: p._id.toString(),
                 title: p.title,
@@ -89,7 +101,7 @@ export class BlogsQueryRepository {
                     }),
                     dislikesCount: await LikesPostsModel.countDocuments({postId: p._id, myStatus: LikesStatus.Dislike}),
                     myStatus: myStatus,
-                    newestLikes: newestLikes
+                    newestLikes: newestLikesViewModel
                 }
             }
         }))
