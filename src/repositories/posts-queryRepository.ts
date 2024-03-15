@@ -5,7 +5,6 @@ import {DefaultCommentsPaginationType} from "../helpers/pagination-comments";
 import {CommentsModel, LikesCommentsModel, LikesPostsModel, PostsModel} from "./db";
 import {PostsViewType} from "../types/post-types";
 import {LikesStatus} from "../types/likes-comments-repository-types";
-import {likesPostsRepository, likesPostsService} from "../composition-root";
 
 export class PostsQueryRepository {
 
@@ -94,6 +93,20 @@ export class PostsQueryRepository {
             .skip(0)
             .lean()
         console.log('newestLikes im repo', newestLikes)
+        console.log('TEST!!!!!!!!!!!!!!!!!!!!', [{
+            addedAt: 'createAt',
+            userId: 'userId',
+            login: 'login'
+        }, {
+            addedAt: 'createAt',
+            userId: 'userId',
+            login: 'login'
+        }, {
+            addedAt: 'createAt',
+            userId: 'userId',
+            login: 'login'
+        }])
+
         const newestLikesViewModel = newestLikes.map(l => {
             return {
                 addedAt: l.createAt,

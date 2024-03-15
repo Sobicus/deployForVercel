@@ -17,7 +17,7 @@ postsRouter.put('/:id', checkAuthorization, ...validationPostsMiddleware, postsC
 postsRouter.delete('/:id', checkAuthorization, postsControllerInstance.deletePost.bind(postsControllerInstance))
 postsRouter.post('/:id/comments', authMiddleware, validationCommentsContentMiddleware, postsControllerInstance.createCommetByPostId.bind(postsControllerInstance))
 postsRouter.get('/:id/comments', softAuthMiddleware, postsControllerInstance.findCommentsByPostId.bind(postsControllerInstance))
-postsRouter.put('/:id/like-status', checkAuthorization, postsControllerInstance.likePostUpdate.bind(postsControllerInstance))
+postsRouter.put('/:id/like-status', authMiddleware, postsControllerInstance.likePostUpdate.bind(postsControllerInstance))
 
 
 
