@@ -16,6 +16,7 @@ const input_blogs_validation_middleware_1 = require("../midlewares/input-blogs-v
 const pagination_helpers_1 = require("../helpers/pagination-helpers");
 const input_postsByBlogId_validation_middleware_1 = require("../midlewares/input-postsByBlogId-validation-middleware");
 const composition_root_1 = require("../composition-root");
+const soft_auth_middleware_1 = require("../midlewares/soft-auth-middleware");
 exports.blogsRouter = (0, express_1.Router)();
 class BlogsController {
     constructor(blogService, blogsQueryRepository, postService) {
@@ -96,7 +97,7 @@ class BlogsController {
 const blogsControllerInstance = new BlogsController(composition_root_1.blogService, composition_root_1.blogsQueryRepository, composition_root_1.postService);
 exports.blogsRouter.get('/', blogsControllerInstance.getAllBlogs.bind(blogsControllerInstance));
 exports.blogsRouter.get(':id', blogsControllerInstance.getBlogById.bind(blogsControllerInstance));
-exports.blogsRouter.get('/:id/posts', blogsControllerInstance.getPostsByBlogId.bind(blogsControllerInstance));
+exports.blogsRouter.get('/:id/posts', soft_auth_middleware_1.softAuthMiddleware, blogsControllerInstance.getPostsByBlogId.bind(blogsControllerInstance));
 exports.blogsRouter.post('/:id/posts', authorization_check_middleware_1.checkAuthorization, ...input_postsByBlogId_validation_middleware_1.validationPostsByBlogIdMidleware, blogsControllerInstance.createPost.bind(blogsControllerInstance));
 exports.blogsRouter.post('/', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, blogsControllerInstance.createBlog.bind(blogsControllerInstance));
 exports.blogsRouter.put('/:id', authorization_check_middleware_1.checkAuthorization, ...input_blogs_validation_middleware_1.validationBlogsMiddleware, blogsControllerInstance.updateBlog.bind(blogsControllerInstance));

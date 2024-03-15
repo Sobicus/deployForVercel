@@ -9,8 +9,8 @@ const input_comments_content_middleware_1 = require("../midlewares/input-comment
 const soft_auth_middleware_1 = require("../midlewares/soft-auth-middleware");
 const posts_controller_1 = require("./posts-controller");
 exports.postsRouter = (0, express_1.Router)();
-exports.postsRouter.get('/', posts_controller_1.postsControllerInstance.getAllPosts.bind(posts_controller_1.postsControllerInstance));
-exports.postsRouter.get('/:id', posts_controller_1.postsControllerInstance.findPostById.bind(posts_controller_1.postsControllerInstance));
+exports.postsRouter.get('/', soft_auth_middleware_1.softAuthMiddleware, posts_controller_1.postsControllerInstance.getAllPosts.bind(posts_controller_1.postsControllerInstance));
+exports.postsRouter.get('/:id', soft_auth_middleware_1.softAuthMiddleware, posts_controller_1.postsControllerInstance.findPostById.bind(posts_controller_1.postsControllerInstance));
 exports.postsRouter.post('/', authorization_check_middleware_1.checkAuthorization, ...input_posts_validation_middleware_1.validationPostsMiddleware, posts_controller_1.postsControllerInstance.createPost.bind(posts_controller_1.postsControllerInstance));
 exports.postsRouter.put('/:id', authorization_check_middleware_1.checkAuthorization, ...input_posts_validation_middleware_1.validationPostsMiddleware, posts_controller_1.postsControllerInstance.updatePost.bind(posts_controller_1.postsControllerInstance));
 exports.postsRouter.delete('/:id', authorization_check_middleware_1.checkAuthorization, posts_controller_1.postsControllerInstance.deletePost.bind(posts_controller_1.postsControllerInstance));

@@ -10,8 +10,8 @@ import {postsControllerInstance} from "./posts-controller";
 export const postsRouter = Router()
 
 
-postsRouter.get('/', postsControllerInstance.getAllPosts.bind(postsControllerInstance))
-postsRouter.get('/:id', postsControllerInstance.findPostById.bind(postsControllerInstance))
+postsRouter.get('/',softAuthMiddleware, postsControllerInstance.getAllPosts.bind(postsControllerInstance))
+postsRouter.get('/:id',softAuthMiddleware, postsControllerInstance.findPostById.bind(postsControllerInstance))
 postsRouter.post('/', checkAuthorization, ...validationPostsMiddleware, postsControllerInstance.createPost.bind(postsControllerInstance))
 postsRouter.put('/:id', checkAuthorization, ...validationPostsMiddleware, postsControllerInstance.updatePost.bind(postsControllerInstance))
 postsRouter.delete('/:id', checkAuthorization, postsControllerInstance.deletePost.bind(postsControllerInstance))
