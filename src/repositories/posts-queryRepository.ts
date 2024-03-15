@@ -72,7 +72,7 @@ export class PostsQueryRepository {
             const reaction = await LikesPostsModel.findOne({postId, userId}).exec()
             myStatus = reaction ? reaction.myStatus : LikesStatus.None
         }
-        const newestLikes = await likesPostsRepository.findLastThreePostsLikesByPostId(postId)
+       // const newestLikes = await likesPostsRepository.findLastThreePostsLikesByPostId(postId)
         return {
             id: post._id.toString(),
             title: post.title,
@@ -85,7 +85,7 @@ export class PostsQueryRepository {
                 likesCount: await LikesPostsModel.countDocuments({postId, myStatus: LikesStatus.Like}),
                 dislikesCount: await LikesPostsModel.countDocuments({postId, myStatus: LikesStatus.Dislike}),
                 myStatus: myStatus,
-                newestLikes: newestLikes
+                 newestLikes: []
             }
         }
     }
