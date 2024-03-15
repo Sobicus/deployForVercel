@@ -60,14 +60,17 @@ export class PostsQueryRepository {
     }
 
     async findPostById(postId: string, userId?: string): Promise<PostsViewType | null> {
+        console.log('in repo')
         let post = await PostsModel
             .findOne({_id: new ObjectId(postId)})
+        console.log('post', post)
         if (!post) {
             return null
         }
         let myStatus = LikesStatus.None
         if (userId) {
-            const reaction = await LikesPostsModel.findOne({postId, userId})
+            console.log('await LikesPostsModel.findOne({postId, userId})', await LikesPostsModel.findOne({postId, userId}))
+            const reaction = await LikesPostsModel.findOne({postId, userId}).exec()
             myStatus = reaction ? reaction.myStatus : LikesStatus.None
         }
         const newestLikes = await likesPostsRepository.findLastThreePostsLikesByPostId(postId)
