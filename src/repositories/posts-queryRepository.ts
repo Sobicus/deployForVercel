@@ -23,22 +23,23 @@ export class PostsQueryRepository {
         const allPosts = await Promise.all(posts.map(async p => {
             let myStatus = LikesStatus.None
             if (userId) {
-                const reaction = await LikesPostsModel.findOne({postId: p._id.toString(), userId})
+                const reaction = await LikesPostsModel.findOne({postId: p._id.toString(), userId}).exec()
                 myStatus = reaction ? reaction.myStatus : LikesStatus.None
             }
             const newestLikes = await LikesPostsModel.find({
-                postId:p._id.toString(),
+                postId: p._id.toString(),
                 myStatus: LikesStatus.Like
             }).sort({'createAt': -1})
                 .limit(3)
                 .skip(0)
                 .lean()
-            const newestLikesViewModel =newestLikes.map(l=>{
-            return{
-                addedAt: l.createAt,
-                userId: l.userId,
-                login: l.login            }
-        })
+            const newestLikesViewModel = newestLikes.map(l => {
+                return {
+                    addedAt: l.createAt,
+                    userId: l.userId,
+                    login: l.login
+                }
+            })
 
             return {
                 id: p._id.toString(),
@@ -91,11 +92,12 @@ export class PostsQueryRepository {
             .limit(3)
             .skip(0)
             .lean()
-        const newestLikesViewModel =newestLikes.map(l=>{
-            return{
+        const newestLikesViewModel = newestLikes.map(l => {
+            return {
                 addedAt: l.createAt,
                 userId: l.userId,
-                login: l.login            }
+                login: l.login
+            }
         })
         return {
             id: post._id.toString(),

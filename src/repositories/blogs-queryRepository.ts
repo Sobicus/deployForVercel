@@ -70,7 +70,7 @@ export class BlogsQueryRepository {
         const allPosts = await Promise.all(posts.map(async p => {
             let myStatus = LikesStatus.None
             if (userId) {
-                const reaction = await LikesPostsModel.findOne({postId: p._id, userId})
+                const reaction = await LikesPostsModel.findOne({postId: p._id, userId}).exec()
                 myStatus = reaction ? reaction.myStatus : LikesStatus.None
             }
             const newestLikes = await LikesPostsModel.find({
