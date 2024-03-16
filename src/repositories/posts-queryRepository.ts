@@ -72,10 +72,8 @@ export class PostsQueryRepository {
     }
 
     async findPostById(postId: string, userId?: string): Promise<PostsViewType | null> {
-        console.log('in repo')
         let post = await PostsModel
             .findOne({_id: new ObjectId(postId)})
-        console.log('post in repo', post)
         if (!post) {
             return null
         }
@@ -84,7 +82,6 @@ export class PostsQueryRepository {
             const reaction = await LikesPostsModel.findOne({postId, userId}).exec()
             myStatus = reaction ? reaction.myStatus : LikesStatus.None
         }
-        console.log('my status in repo', myStatus)
         const newestLikes = await LikesPostsModel.find({
             postId,
             myStatus: LikesStatus.Like
@@ -92,42 +89,11 @@ export class PostsQueryRepository {
             .limit(3)
             .skip(0)
             .lean()
-        console.log('newestLikes im repo', newestLikes)
-        console.log('TEST!!!!!!!!!!!!!!!!!!!!', [{
-            addedAt: 'createAt',
-            userId: 'userId',
-            login: 'login'
-        }, {
-            addedAt: 'createAt',
-            userId: 'userId',
-            login: 'login'
-        }, {
-            addedAt: 'createAt',
-            userId: 'userId',
-            login: 'login'
-        }])
-
         const newestLikesViewModel = newestLikes.map(l => {
             return {
                 addedAt: l.createAt,
                 userId: l.userId,
                 login: l.login
-            }
-        })
-        console.log('newestLikesViewModel in repo', newestLikesViewModel)
-        console.log('postView in repo', {
-            id: post._id.toString(),
-            title: post.title,
-            shortDescription: post.shortDescription,
-            content: post.content,
-            blogId: post.blogId,
-            blogName: post.blogName,
-            createdAt: post.createdAt,
-            extendedLikesInfo: {
-                likesCount: await LikesPostsModel.countDocuments({postId, myStatus: LikesStatus.Like}),
-                dislikesCount: await LikesPostsModel.countDocuments({postId, myStatus: LikesStatus.Dislike}),
-                myStatus: myStatus,
-                newestLikes: newestLikesViewModel
             }
         })
 
