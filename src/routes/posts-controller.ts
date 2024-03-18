@@ -100,11 +100,11 @@ class PostsController {
         return res.status(200).send(comments)
     }
 
-    async likePostUpdate(req: putRequestChangePost<{ postId: string }, { likeStatus: LikesStatus }>, res: Response) {
+    async likePostUpdate(req: putRequestChangePost<{ id: string }, { likeStatus: LikesStatus }>, res: Response) {
         const postLikeStatus = req.body.likeStatus
         const userId = req.user!._id.toString()
         const login = req.user!.login
-        const postId = req.params.postId
+        const postId = req.params.id
         const result = await this.likesPostsService.likePostsUpdate(postId, userId, postLikeStatus, login)
         if (result === '404') {
             res.sendStatus(404)
