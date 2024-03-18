@@ -8,6 +8,7 @@ const auth_middleware_1 = require("../midlewares/auth-middleware");
 const input_comments_content_middleware_1 = require("../midlewares/input-comments-content-middleware");
 const soft_auth_middleware_1 = require("../midlewares/soft-auth-middleware");
 const posts_controller_1 = require("./posts-controller");
+const input_post_postLikes_middleware_1 = require("../midlewares/input-post-postLikes-middleware");
 exports.postsRouter = (0, express_1.Router)();
 exports.postsRouter.get('/', soft_auth_middleware_1.softAuthMiddleware, posts_controller_1.postsControllerInstance.getAllPosts.bind(posts_controller_1.postsControllerInstance));
 exports.postsRouter.get('/:id', soft_auth_middleware_1.softAuthMiddleware, posts_controller_1.postsControllerInstance.findPostById.bind(posts_controller_1.postsControllerInstance));
@@ -16,4 +17,4 @@ exports.postsRouter.put('/:id', authorization_check_middleware_1.checkAuthorizat
 exports.postsRouter.delete('/:id', authorization_check_middleware_1.checkAuthorization, posts_controller_1.postsControllerInstance.deletePost.bind(posts_controller_1.postsControllerInstance));
 exports.postsRouter.post('/:id/comments', auth_middleware_1.authMiddleware, input_comments_content_middleware_1.validationCommentsContentMiddleware, posts_controller_1.postsControllerInstance.createCommetByPostId.bind(posts_controller_1.postsControllerInstance));
 exports.postsRouter.get('/:id/comments', soft_auth_middleware_1.softAuthMiddleware, posts_controller_1.postsControllerInstance.findCommentsByPostId.bind(posts_controller_1.postsControllerInstance));
-exports.postsRouter.put('/:id/like-status', auth_middleware_1.authMiddleware, posts_controller_1.postsControllerInstance.likePostUpdate.bind(posts_controller_1.postsControllerInstance));
+exports.postsRouter.put('/:id/like-status', auth_middleware_1.authMiddleware, input_post_postLikes_middleware_1.validationPostLikesMiddleware, posts_controller_1.postsControllerInstance.likePostUpdate.bind(posts_controller_1.postsControllerInstance));
