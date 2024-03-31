@@ -34,7 +34,7 @@ export class UsersQueryRepository {
       createdAt: u.createdAt,
     }));
     const totalCount = await this.UsersModel.countDocuments(filter);
-    const pagesCount = Math.floor(totalCount / pagination.pageSize);
+    const pagesCount = Math.ceil(totalCount / pagination.pageSize);
     return {
       pagesCount: pagesCount,
       page: pagination.pageNumber,
