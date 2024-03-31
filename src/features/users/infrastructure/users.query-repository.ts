@@ -33,7 +33,7 @@ export class UsersQueryRepository {
       email: u.email,
       createdAt: u.createdAt,
     }));
-    const totalCount = await this.UsersModel.countDocuments();
+    const totalCount = await this.UsersModel.countDocuments(filter);
     const pagesCount = Math.floor(totalCount / pagination.pageSize);
     return {
       pagesCount: pagesCount,
