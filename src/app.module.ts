@@ -21,7 +21,8 @@ import { UsersController } from './features/users/api/users.controller';
 import { UsersRepository } from './features/users/infrastructure/users.repository';
 import { UsersQueryRepository } from './features/users/infrastructure/users.query-repository';
 import { UsersService } from './features/users/application/users.service';
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule } from '@nestjs/config';
+
 
 
 @Module({
@@ -55,3 +56,20 @@ import { ConfigModule } from "@nestjs/config";
   ],
 })
 export class AppModule {}
+// @Module({
+//   imports: [
+//     ConfigModule.forRoot({
+//       isGlobal: true,
+//     }),
+//     MongooseModule.forRootAsync({
+//       imports: [ConfigModule],
+//       useFactory: async (configService: ConfigService) => ({
+//         uri: configService.get<string>('MONGO_URL'),
+//       }),
+//       inject: [ConfigService],
+//     }),
+//     Modules,
+//   ],
+//   controllers: [AppController],
+//   providers: [AppService],
+// })
