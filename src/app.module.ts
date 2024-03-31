@@ -22,6 +22,7 @@ import { UsersRepository } from './features/users/infrastructure/users.repositor
 import { UsersQueryRepository } from './features/users/infrastructure/users.query-repository';
 import { UsersService } from './features/users/application/users.service';
 import { ConfigModule } from '@nestjs/config';
+import { TestingAllDataController } from "./features/dropAll/api/testing-all-data.controller";
 
 
 
@@ -41,6 +42,7 @@ import { ConfigModule } from '@nestjs/config';
     PostsController,
     CommentsController,
     UsersController,
+    TestingAllDataController,
   ],
   providers: [
     BlogsService,

@@ -17,4 +17,7 @@ export class UsersRepository {
   async deleteUser(userId: string) {
     return this.UsersModel.deleteOne({ _id: userId });
   }
+  async deleteAll(){
+    await this.UsersModel.deleteMany()
+  }
 }

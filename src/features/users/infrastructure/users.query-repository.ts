@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import {
   UserOutputDTO,
-  UsersOtputDTO,
+  UsersOutputDTO,
 } from '../api/models/output/users.output.module';
 import { PaginationUsersOutModelType } from '../../../base/pagination-users-helper';
 
@@ -15,7 +15,7 @@ export class UsersQueryRepository {
 
   async getAllUsers(
     pagination: PaginationUsersOutModelType,
-  ): Promise<UsersOtputDTO> {
+  ): Promise<UsersOutputDTO> {
     const filter = {
       $or: [
         { login: { $regex: pagination.searchLoginTerm ?? '', $options: 'i' } },
