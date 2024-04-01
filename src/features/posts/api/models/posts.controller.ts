@@ -36,6 +36,7 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException();
     }
+    return post;
   }
 
   @Post()
