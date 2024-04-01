@@ -68,8 +68,12 @@ export class BlogsController {
     }
   }
   @Delete(':id')
+  @HttpCode(204)
   async deleteBlog(@Param('id') blogId: string) {
-    return await this.blogsService.deleteBlog(blogId);
+    const res = await this.blogsService.deleteBlog(blogId);
+    if (res.status === 'NotFound') {
+      throw new NotFoundException();
+    }
   }
   @Get(':id/posts')
   async getPostsByBlogId(
