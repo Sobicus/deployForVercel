@@ -32,7 +32,10 @@ export class PostsController {
   }
   @Get(':id')
   async getPostById(@Param('id') postId: string) {
-    return await this.postsQueryRepository.getPostById(postId);
+    const post = await this.postsQueryRepository.getPostById(postId);
+    if (!post) {
+      throw new NotFoundException();
+    }
   }
 
   @Post()
