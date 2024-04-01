@@ -46,6 +46,7 @@ export class BlogsController {
     if (!res) {
       throw new NotFoundException();
     }
+    return res;
   }
 
   @Post()
