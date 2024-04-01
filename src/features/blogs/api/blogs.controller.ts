@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   Post,
@@ -56,12 +57,15 @@ export class BlogsController {
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updateBlog(
     @Param('id') blogId: string,
     @Body() inputModel: BlogInputModelType,
   ) {
     const res = await this.blogsService.updateBlog(blogId, inputModel);
-    return res.statusMessages;
+    if (res.status === 'NotFound') {
+      throw new NotFoundException();
+    }
   }
   @Delete(':id')
   async deleteBlog(@Param('id') blogId: string) {
