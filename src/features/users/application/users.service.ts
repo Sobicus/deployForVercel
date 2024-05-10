@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../infrastructure/users.repository';
 import { UserInputModelType } from '../api/models/input/create-users.input.model';
 import { ObjectClassResult, statusType } from '../../../base/oject-result';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { Users } from '../domain/users.entity';
 import { EmailService } from '../../../base/mail/email-server.service';
 

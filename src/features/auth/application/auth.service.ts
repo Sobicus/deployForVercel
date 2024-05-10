@@ -11,7 +11,7 @@ import { ObjectClassResult, statusType } from '../../../base/oject-result';
 import { PasswordRecoveryRepository } from '../../users/infrastructure/accountData/passwordRecoveryRepository';
 import { PasswordRecovery } from '../../users/infrastructure/accountData/passwordRecovery.entity';
 import { UsersDocument } from '../../users/domain/users.entity';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {

@@ -1,13 +1,13 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
-import { HydratedDocument } from 'mongoose';
-import { randomUUID } from 'crypto';
-import { add } from 'date-fns';
+import { randomUUID } from "crypto";
+import { add } from "date-fns";
+import { HydratedDocument, Types } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+
 
 @Schema()
 export class PasswordRecovery {
-  @Prop({ type: ObjectId, required: true })
-  _id: ObjectId;
+  @Prop({ type: Types.ObjectId, required: true })
+  _id: Types.ObjectId;
   @Prop({ type: String, required: true })
   userId: string;
   @Prop({ type: String, required: true })
@@ -18,13 +18,13 @@ export class PasswordRecovery {
   alreadyChangePassword: boolean;
 
   constructor(userId: string) {
-    (this._id = new ObjectId()),
+    (this._id = new Types.ObjectId()),
       (this.userId = userId),
       (this.recoveryCode = randomUUID()),
       (this.recoveryCodeExpireDate = add(new Date(), {
         hours: 3,
         minutes: 3,
-        seconds: 3,
+        seconds: 3
       }));
     this.alreadyChangePassword = false;
   }
