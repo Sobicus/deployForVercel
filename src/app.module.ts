@@ -74,7 +74,6 @@ const service = [
 @Module({
   imports: [
     PassportModule,
-    ConfigModule.forRoot(),
     JwtModule.register({
       global: true,
     }),
@@ -99,6 +98,7 @@ const service = [
         },
       },
     }),
+    ConfigModule.forRoot(),
     MongooseModule.forRoot(
       process.env.MONGO_URL || 'mongodb://127.0.0.1:27017',
       { dbName: 'NestJSBD' },
