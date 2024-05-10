@@ -6,6 +6,7 @@ import {
   HttpCode,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -16,13 +17,13 @@ import { BlogInputModelType } from './models/input/create-blog.input.model';
 import {
   blogsPagination,
   paginationBlogsInputModelType,
-} from '../../../base/pagination-blogs-helper';
+} from '../../../base/helpers/pagination-blogs-helper';
 import { PostsService } from '../../posts/application/posts.service';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
 import {
   PaginationPostsInputModelType,
   postPagination,
-} from '../../../base/pagination-posts-helpers';
+} from '../../../base/helpers/pagination-posts-helpers';
 import { PostInputModelBlogControllerType } from '../../posts/api/models/input/create-post.input.model';
 
 @Controller('blogs')
@@ -42,7 +43,7 @@ export class BlogsController {
 
   @Get(':id')
   //@HttpCode(201)
-  async getBlogById(@Param('id') userId: string) {
+  async getBlogById(@Param('id', ParseIntPipe) userId: string) {
     const res = await this.blogsQueryRepository.getBlogById(userId);
     if (!res) {
       throw new NotFoundException();
@@ -74,6 +75,7 @@ export class BlogsController {
     if (res.status === 'NotFound') {
       throw new NotFoundException();
     }
+    return;
   }
   @Get(':id/posts')
   async getPostsByBlogId(

@@ -6,7 +6,12 @@ import { Blogs, BlogsDocument } from '../domain/blogs.entity';
 
 @Injectable()
 export class BlogsService {
-  constructor(private blogRepository: BlogsRepository) {}
+  //constructor(private blogRepository: BlogsRepository) {}
+  private blogRepository: BlogsRepository;
+  constructor(blogsRepository: BlogsRepository) {
+    this.blogRepository = blogsRepository;
+  }
+
   async getBlogById(blogId: string): Promise<BlogsDocument | null> {
     return await this.blogRepository.getBlogByBlogId(blogId);
   }
@@ -18,8 +23,11 @@ export class BlogsService {
     //   createdAt,
     //   isMembership,
     // });
+    console.log(inputBlogModel);
     const blog = Blogs.create(inputBlogModel);
+    console.log(blog);
     const createdBlog = await this.blogRepository.saveBlog(blog);
+    console.log(createdBlog);
     return createdBlog._id.toString();
   }
   async updateBlog(

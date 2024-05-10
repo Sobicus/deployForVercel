@@ -8,14 +8,16 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
-import { UsersQueryRepository } from '../infrastructure/users.query-repository';
+import { UsersQueryRepository } from '../infrastructure/users-query.repository';
 import { UserInputModelType } from './models/input/create-users.input.model';
 import {
   PaginationUsersInputModelType,
   usersPagination,
-} from '../../../base/pagination-users-helper';
+} from '../../../base/helpers/pagination-users-helper';
+import { UserAuthGuard } from '../../../base/guards/authLocal.guard';
 
 @Controller('users')
 export class UsersController {
@@ -23,17 +25,20 @@ export class UsersController {
     private usersService: UsersService,
     private usersQueryRepository: UsersQueryRepository,
   ) {}
+  @UseGuards(UserAuthGuard)
   @Get()
   async getAllUsers(@Query() query: PaginationUsersInputModelType) {
     const pagination = usersPagination(query);
     return this.usersQueryRepository.getAllUsers(pagination);
   }
+  @UseGuards(UserAuthGuard)
   @Post()
   async CreateUser(@Body() inputModel: UserInputModelType) {
     const userId = await this.usersService.createUser(inputModel);
     const user = await this.usersQueryRepository.getUserById(userId);
     if (user) return user;
   }
+  @UseGuards(UserAuthGuard)
   @Delete(':id')
   @HttpCode(204)
   async DeleteUser(@Param('id') userId: string) {
